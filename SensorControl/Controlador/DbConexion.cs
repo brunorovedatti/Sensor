@@ -1,5 +1,5 @@
 ﻿using MySql.Data.MySqlClient;
-using System.Windows.Forms;
+using System.Configuration;
 
 namespace Controlador
 {
@@ -20,14 +20,11 @@ namespace Controlador
 
         public static MySqlConnection ObtenerConexion()
         {
-            string fic = "";
-            fic = Application.StartupPath.ToString() + "\\MySqlConnector.ConnectionString.dll";
-            string text = System.IO.File.ReadAllText(fic) + "\r\n"; //Esto lo hago porque puede que no deje un enter en el ultimo campo;
-            string strServer = getBetween(text, "[Server]=", "\r");
-            string strDataSource = getBetween(text, "[DataSource]=", "\r");
-            string strUser = getBetween(text, "[User]=", "\r");
-            string strPassword = getBetween(text, "[Password]=", "\r");
-            string strPort = getBetween(text, "[Port]=", "\r");
+            string strServer = ConfigurationManager.AppSettings.Get("Server");
+            string strDataSource = ConfigurationManager.AppSettings.Get("DataSource");
+            string strUser = ConfigurationManager.AppSettings.Get("User");
+            string strPassword = ConfigurationManager.AppSettings.Get("Password");
+            string strPort = ConfigurationManager.AppSettings.Get("Port");
             string server;
             string dataSource;
             string user;

@@ -1,9 +1,11 @@
-﻿namespace Modelo
+﻿using System;
+
+namespace Modelo
 {
     public class Lectura
     {
         public int Id_Lectura { get; set; }
-        public string Fecha_Lectura { get; set; }
+        public DateTime Fecha_Lectura { get; set; }
         public string Valor_Lectura { get; set; }
         public string Id_Variable { get; set; }
         public string Nombre_Variable { get; set; }
@@ -22,7 +24,7 @@
 
         public Lectura() { }
 
-        public Lectura(int pId_Lectura, string pFecha_Lectura, string pValor_Lectura, int pId_Ubicacion, string pNombre_Variable, string pUnidad_Variable, string pAlerta_Variable, string pOperador_Alerta_Variable, bool pAnalizada_Lectura, string pId_Equipo, string pNombre_Equipo, string pNombre_Ubicacion, int pId_Conexion, string pNombre_Conexion, bool pAlerta_Notificada, bool pSin_Conexion_Equipo)
+        public Lectura(int pId_Lectura, DateTime pFecha_Lectura, string pValor_Lectura, int pId_Ubicacion, string pNombre_Variable, string pUnidad_Variable, string pAlerta_Variable, string pOperador_Alerta_Variable, bool pAnalizada_Lectura, string pId_Equipo, string pNombre_Equipo, string pNombre_Ubicacion, int pId_Conexion, string pNombre_Conexion, bool pAlerta_Notificada, bool pSin_Conexion_Equipo)
         {
             this.Id_Lectura = pId_Lectura;
             this.Fecha_Lectura = pFecha_Lectura;

@@ -1,0 +1,18 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+@section Scripts {
+    @Scripts.Render("~/Scripts/chart.js")
+    <script>
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var chart = new Chart(ctx, @Html.Raw(ViewBag.Chart));
+    </script>
+}
+
+<h2>Home</h2>
+<canvas id="myChart"></canvas>
+
+
+
