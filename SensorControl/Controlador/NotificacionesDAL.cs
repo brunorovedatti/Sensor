@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 using MySql.Data.MySqlClient;
+using System.Collections.Generic;
 
 namespace Controlador
 {
@@ -25,5 +26,39 @@ namespace Controlador
 
             return retorno;
         }
+
+        public static List<Modelo.Notificacion> ValoresMinimos_y_Maximos(string pIdVariable, DateTime pFDesde, DateTime pFHasta)
+        {
+            List<Modelo.Notificacion> _lista = new List<Modelo.Notificacion>();
+            string strSQL = "";
+            strSQL = strSQL + "SELECT ";
+            strSQL = strSQL + "        DATE_FORMAT(N.fecha_notificacion, '%d/%m/%Y') AS fecha_notificacion ";
+            strSQL = strSQL + "      , COUNT(CASE alerta_notificada WHEN 'True' THEN 1 END) AS count_true,  ";
+            strSQL = strSQL + "      , COUNT(CASE alerta_notificada WHEN 'False' THEN 1 END) AS count_false,  ";
+            strSQL = strSQL + "FROM ";
+            strSQL = strSQL + "               Notificaciones AS N ";
+            strSQL = strSQL + "WHERE ";
+            strSQL = strSQL + "         N.id_variable = " + pIdVariable;
+            strSQL = strSQL + "     AND DATE_FORMAT(N.fecha_notificacion, '%d/%m/%Y') BETWEEN '" + pFDesde + "' AND '" + pFHasta + "'";
+            MySqlConnection MyConn = new MySqlConnection();
+            MyConn = DbConexion.ObtenerConexion();
+            MySqlCommand _comando = new MySqlCommand(String.Format(strSQL), MyConn);
+
+            MySqlDataReader _reader = _comando.ExecuteReader();
+            while (_reader.Read())
+            {
+                Modelo.Notificacion pNotificacion = new Modelo.Notificacion();
+                pNotificacion.Fecha_Notificacion = _reader.GetString(0);
+                pNotificacion.Count_True = _reader.GetInt32(1);
+                pNotificacion.Count_False = _reader.GetInt32(2);
+
+                _lista.Add(pNotificacion);
+            }
+
+            MyConn.Close();
+
+            return _lista;
+        }
+
     }
 }

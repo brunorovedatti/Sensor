@@ -19,10 +19,12 @@
         public string Nombre_Conexion { get; set; }
         public bool Alerta_Notificada { get; set; }
         public bool Sin_Conexion_Equipo { get; set; }
+        public string Valor_Maximo { get; set; }
+        public string Valor_Minimo { get; set; }
 
         public Lectura() { }
 
-        public Lectura(int pId_Lectura, string pFecha_Lectura, string pValor_Lectura, int pId_Ubicacion, string pNombre_Variable, string pUnidad_Variable, string pAlerta_Variable, string pOperador_Alerta_Variable, bool pAnalizada_Lectura, string pId_Equipo, string pNombre_Equipo, string pNombre_Ubicacion, int pId_Conexion, string pNombre_Conexion, bool pAlerta_Notificada, bool pSin_Conexion_Equipo)
+        public Lectura(int pId_Lectura, string pFecha_Lectura, string pValor_Lectura, int pId_Ubicacion, string pNombre_Variable, string pUnidad_Variable, string pAlerta_Variable, string pOperador_Alerta_Variable, bool pAnalizada_Lectura, string pId_Equipo, string pNombre_Equipo, string pNombre_Ubicacion, int pId_Conexion, string pNombre_Conexion, bool pAlerta_Notificada, bool pSin_Conexion_Equipo, string pValor_Maximo, string pValor_Minimo)
         {
             this.Id_Lectura = pId_Lectura;
             this.Fecha_Lectura = pFecha_Lectura;
@@ -40,6 +42,8 @@
             this.Nombre_Conexion = pNombre_Conexion;
             this.Alerta_Notificada = pAlerta_Notificada;
             this.Sin_Conexion_Equipo = pSin_Conexion_Equipo;
+            this.Valor_Maximo = pValor_Maximo;
+            this.Valor_Minimo = pValor_Minimo;
         }
     }
 }
