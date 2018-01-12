@@ -26,7 +26,7 @@ namespace Modelo
 
         public Lectura() { }
 
-        public Lectura(int pId_Lectura, DateTime pFecha_Lectura, string pValor_Lectura, int pId_Ubicacion, string pNombre_Variable, string pUnidad_Variable, string pAlerta_Variable, string pOperador_Alerta_Variable, bool pAnalizada_Lectura, string pId_Equipo, string pNombre_Equipo, string pNombre_Ubicacion, int pId_Conexion, string pNombre_Conexion, bool pAlerta_Notificada, bool pSin_Conexion_Equipo)
+        public Lectura(int pId_Lectura, DateTime pFecha_Lectura, string pValor_Lectura, int pId_Ubicacion, string pNombre_Variable, string pUnidad_Variable, string pAlerta_Variable, string pOperador_Alerta_Variable, bool pAnalizada_Lectura, string pId_Equipo, string pNombre_Equipo, string pNombre_Ubicacion, int pId_Conexion, string pNombre_Conexion, bool pAlerta_Notificada, bool pSin_Conexion_Equipo, String pValor_Maximo, String pValor_Minimo)
         {
             this.Id_Lectura = pId_Lectura;
             this.Fecha_Lectura = pFecha_Lectura;

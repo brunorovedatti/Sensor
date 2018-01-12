@@ -17,6 +17,7 @@ namespace SensorWeb.Controllers
                 .Select(x => x.Fecha_Lectura)
                 .Distinct()
                 .OrderBy(x => x)
+                .Where((_,i) => i%2 ==0)
                 ;
 
 

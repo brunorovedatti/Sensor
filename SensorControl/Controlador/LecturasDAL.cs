@@ -261,7 +261,7 @@ namespace Controlador
             List<Modelo.Lectura> _lista = new List<Modelo.Lectura>();
             string strSQL = "";
             strSQL = strSQL + "SELECT ";
-            strSQL = strSQL + "        DATE_FORMAT(L.fecha_lectura, '%d/%m/%Y') AS fecha_lectura ";
+            strSQL = strSQL + "        L.fecha_lectura";
             strSQL = strSQL + "      , MAX(L.valor_lectura) AS valor_maximo ";
             strSQL = strSQL + "      , MIN(L.valor_lectura) AS valor_minimo ";
             strSQL = strSQL + "FROM ";
@@ -277,7 +277,7 @@ namespace Controlador
             while (_reader.Read())
             {
                 Modelo.Lectura pLectura = new Modelo.Lectura();
-                pLectura.Fecha_Lectura = _reader.GetString(0);
+                pLectura.Fecha_Lectura = _reader.GetDateTime(0);
                 pLectura.Valor_Maximo = _reader.GetString(1);
                 pLectura.Valor_Minimo = _reader.GetString(2);
 
