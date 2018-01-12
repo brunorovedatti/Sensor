@@ -44,11 +44,17 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Conexion.cs" />
     <Compile Include="Equipo.cs" />
     <Compile Include="Lectura.cs" />
     <Compile Include="Notificacion.cs" />
+    <Compile Include="Ubicacion.cs" />
     <Compile Include="Usuario.cs" />
+    <Compile Include="UsuarioConexion.cs" />
     <Compile Include="Variable.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

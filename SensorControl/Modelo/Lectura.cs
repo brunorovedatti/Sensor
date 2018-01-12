@@ -21,6 +21,8 @@ namespace Modelo
         public string Nombre_Conexion { get; set; }
         public bool Alerta_Notificada { get; set; }
         public bool Sin_Conexion_Equipo { get; set; }
+        public string Valor_Maximo { get; set; }
+        public string Valor_Minimo { get; set; }
 
         public Lectura() { }
 
@@ -42,6 +44,8 @@ namespace Modelo
             this.Nombre_Conexion = pNombre_Conexion;
             this.Alerta_Notificada = pAlerta_Notificada;
             this.Sin_Conexion_Equipo = pSin_Conexion_Equipo;
+            this.Valor_Maximo = pValor_Maximo;
+            this.Valor_Minimo = pValor_Minimo;
         }
     }
 }

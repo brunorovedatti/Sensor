@@ -256,5 +256,38 @@ namespace Controlador
             return _lista;
         }
 
+        public static List<Modelo.Lectura> ValoresMinimos_y_Maximos(string pIdVariable, DateTime pFDesde, DateTime pFHasta)
+        {
+            List<Modelo.Lectura> _lista = new List<Modelo.Lectura>();
+            string strSQL = "";
+            strSQL = strSQL + "SELECT ";
+            strSQL = strSQL + "        DATE_FORMAT(L.fecha_lectura, '%d/%m/%Y') AS fecha_lectura ";
+            strSQL = strSQL + "      , MAX(L.valor_lectura) AS valor_maximo ";
+            strSQL = strSQL + "      , MIN(L.valor_lectura) AS valor_minimo ";
+            strSQL = strSQL + "FROM ";
+            strSQL = strSQL + "               sensor.lecturas AS L ";
+            strSQL = strSQL + "WHERE ";
+            strSQL = strSQL + "         L.id_variable = " + pIdVariable;
+            strSQL = strSQL + "     AND DATE_FORMAT(L.fecha_lectura, '%d/%m/%Y') BETWEEN '" + pFDesde + "' AND '" + pFHasta + "'";
+            MySqlConnection MyConn = new MySqlConnection();
+            MyConn = DbConexion.ObtenerConexion();
+            MySqlCommand _comando = new MySqlCommand(String.Format(strSQL), MyConn);
+
+            MySqlDataReader _reader = _comando.ExecuteReader();
+            while (_reader.Read())
+            {
+                Modelo.Lectura pLectura = new Modelo.Lectura();
+                pLectura.Fecha_Lectura = _reader.GetString(0);
+                pLectura.Valor_Maximo = _reader.GetString(1);
+                pLectura.Valor_Minimo = _reader.GetString(2);
+
+                _lista.Add(pLectura);
+            }
+
+            MyConn.Close();
+
+            return _lista;
+        }
+
     }
 }

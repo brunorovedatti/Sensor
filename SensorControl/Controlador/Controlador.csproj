@@ -43,10 +43,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConexionesDAL.cs" />
     <Compile Include="DbConexion.cs" />
     <Compile Include="EquiposDAL.cs" />
     <Compile Include="LecturasDAL.cs" />
     <Compile Include="NotificacionesDAL.cs" />
+    <Compile Include="UbicacionesDAL.cs" />
+    <Compile Include="UsuariosConexionesDAL.cs" />
     <Compile Include="UsuariosDAL.cs" />
     <Compile Include="VariablesDAL.cs" />
   </ItemGroup>

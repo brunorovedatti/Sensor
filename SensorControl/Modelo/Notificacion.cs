@@ -17,9 +17,12 @@
         public string Valor_Variable { get; set; }
         public string Operador_Variable { get; set; }
         public string Valor_Leido { get; set; }
+        public int Count_True { get; set; }
+        public int Count_False { get; set; }
+
         public Notificacion() { }
 
-        public Notificacion(int pId_notificacion, string pFecha_Notificacion, string pId_Variable, string pNombre_Variable, string pEmail_Notificacion, string pId_Conexion, string pNombre_Conexion, string pId_Usuario, string pNombre_Usuario, string pId_Equipo, string pNombre_Equipo, string pAlerta_Notificada, string pValor_Variable, string pOperador_Variable, string pValor_Leido)
+        public Notificacion(int pId_notificacion, string pFecha_Notificacion, string pId_Variable, string pNombre_Variable, string pEmail_Notificacion, string pId_Conexion, string pNombre_Conexion, string pId_Usuario, string pNombre_Usuario, string pId_Equipo, string pNombre_Equipo, string pAlerta_Notificada, string pValor_Variable, string pOperador_Variable, string pValor_Leido, int pCount_True, int pCount_False)
         {
             this.Id_notificacion = pId_notificacion;
             this.Fecha_Notificacion = pFecha_Notificacion;
@@ -36,6 +39,8 @@
             this.Valor_Variable = pValor_Variable;
             this.Operador_Variable = pOperador_Variable;
             this.Valor_Leido = pValor_Leido;
+            this.Count_True = pCount_True;
+            this.Count_False = pCount_False;
         }
     }
 }
