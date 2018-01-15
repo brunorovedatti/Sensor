@@ -5,12 +5,31 @@
 
 @section Scripts {
     @Scripts.Render("~/Scripts/chart.js")
-    <script>
-        var ctx = document.getElementById('myChart').getContext('2d');
-        var chart = new Chart(ctx, @Html.Raw(ViewBag.Chart));
-    </script>
+<script>
+        $(function () {
+            var ctx = document.getElementById('myChart').getContext('2d');
+            var $title = $("#title");
+            var $description = $("#description");
+            var chart;
+
+            function reloadChart () {
+                $.post('@Url.Action("GetChart", new { id = "1" })', function (data) {
+                    if (chart) {
+                        chart.destroy();
+                    }
+                    $title.text(data.title);
+                    $description.text(data.description);
+                    chart = new Chart(ctx, data.chart);
+                });
+            }
+
+            reloadChart();
+            setInterval(reloadChart, 5000); // recarga cada 5 segundos
+        });
+</script>
 }
 
-<h2>@ViewBag.Title</h2>
-<h5>@ViewBag.Description</h5>
+<h2 id="title"></h2>
+<h5 id="description"></h5>
+
 <canvas id="myChart"></canvas>

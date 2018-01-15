@@ -139,7 +139,7 @@ namespace Controlador
             return _lista;
         }
 
-        public static List<Modelo.Lectura> RecuperarLecturaGrafico()
+        public static List<Modelo.Lectura> RecuperarLecturaGrafico(string id)
         {
             List<Modelo.Lectura> _lista = new List<Modelo.Lectura>();
             string strSQL = @"
@@ -170,12 +170,14 @@ namespace Controlador
                 ON(E.id_ubicacion = U.id_ubicacion) 
             INNER JOIN sensor.conexiones AS C 
                 ON(E.id_conexion = C.id_conexion)
+            WHERE V.id_equipo = @idEquipo
             ORDER BY L.fecha_lectura DESC
             LIMIT 100
             ";
 
             MySqlConnection MyConn = DbConexion.ObtenerConexion();
             MySqlCommand _comando = new MySqlCommand(strSQL, MyConn);
+            _comando.Parameters.AddWithValue("@idEquipo", id);
 
             MySqlDataReader _reader = _comando.ExecuteReader();
             while (_reader.Read())
