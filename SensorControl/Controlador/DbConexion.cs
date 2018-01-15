@@ -20,44 +20,14 @@ namespace Controlador
 
         public static MySqlConnection ObtenerConexion()
         {
+            string connectionString = "";
             string strServer = ConfigurationManager.AppSettings.Get("Server");
             string strDataSource = ConfigurationManager.AppSettings.Get("DataSource");
             string strUser = ConfigurationManager.AppSettings.Get("User");
             string strPassword = ConfigurationManager.AppSettings.Get("Password");
             string strPort = ConfigurationManager.AppSettings.Get("Port");
-            string server;
-            string dataSource;
-            string user;
-            string password;
-            string port;
-            string connectionString = "";
 
-            if (strServer == "")
-                server = "";
-            else
-                server = strServer;
-
-            if (strDataSource == "")
-                dataSource = "";
-            else
-                dataSource = strDataSource;
-
-            if (strUser == "")
-                user = "sensor_write";
-            else
-                user = strUser;
-
-            if (strPassword == "")
-                password = "r00t&4ss";
-            else
-                password = Utilidades.CryptorEngine.Decrypt(strPassword, true);
-
-            if (strPort == "")
-                port = "";
-            else
-                port = strPort;
-
-            connectionString = "Server=" + server + "; Port=" + port + "; Database =" + dataSource + "; Uid=" + user + "; pwd='" + password + "';" ;
+            connectionString = "Server=" + strServer + "; Port=" + strPort + "; Database =" + strDataSource + "; Uid=" + strUser + "; pwd='" + strPassword + "';";
 
             MySqlConnection conectar = new MySqlConnection(connectionString);
 

@@ -20,7 +20,8 @@ namespace SensorWeb.Controllers
                 .Where((_,i) => i%2 ==0)
                 ;
 
-
+            var title = lecturas[0].Nombre_Equipo;
+            var description = lecturas[0].Nombre_Conexion + " - " + lecturas[0].Nombre_Ubicacion;
 
             var chart = new {
                 type= "bar",
@@ -43,7 +44,7 @@ namespace SensorWeb.Controllers
                             var t = x.First();
                             return new
                             {
-                                label = String.Format("{0} {1}", t.Nombre_Equipo, t.Nombre_Variable),
+                                label = String.Format(" {0}", t.Nombre_Variable),
                                 type = t.Id_Variable == "1" ? "line" : "bar",
                                 data = x.OrderBy(m => m.Fecha_Lectura)
                                         .Select(y => new {
@@ -56,6 +57,8 @@ namespace SensorWeb.Controllers
                 }
             };
 
+            ViewBag.Title = title;
+            ViewBag.Description = description;
             ViewBag.Chart = JsonConvert.SerializeObject(chart);
 
             return View();
