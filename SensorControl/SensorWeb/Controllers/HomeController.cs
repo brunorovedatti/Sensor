@@ -11,22 +11,33 @@ namespace SensorWeb.Controllers
         // GET: Home
         public ActionResult Index()
         {
-            var lecturas = LecturasDAL.RecuperarLecturaGrafico();
+            return View();
+        }
+
+        [HttpPost]
+        public ContentResult GetChart(string id)
+        {
+            var lecturas = LecturasDAL
+                .RecuperarLecturaGrafico(id)
+                ;
 
             var labels = lecturas
                 .Select(x => x.Fecha_Lectura)
                 .Distinct()
                 .OrderBy(x => x)
-                .Where((_,i) => i%2 ==0)
+                .Where((_, i) => i % 2 == 0)
                 ;
 
-            var title = lecturas[0].Nombre_Equipo;
-            var description = lecturas[0].Nombre_Conexion + " - " + lecturas[0].Nombre_Ubicacion;
+            var tmp = lecturas.FirstOrDefault();
+            var title = tmp.Nombre_Equipo;
+            var description = tmp.Nombre_Conexion + " - " + tmp.Nombre_Ubicacion;
 
-            var chart = new {
-                type= "bar",
-                options = new {
-                    xAxes= new[]{
+            var chart = new
+            {
+                type = "bar",
+                options = new
+                {
+                    xAxes = new[]{
                         new {
                             type="time",
                             distribution = "linear",
@@ -36,10 +47,11 @@ namespace SensorWeb.Controllers
                         }
                     }
                 },
-                data= new {
+                data = new
+                {
                     labels = labels,
                     datasets = lecturas
-                        .GroupBy(x => new { x.Id_Equipo, x.Id_Variable })
+                        .GroupBy(x => x.Id_Variable)
                         .Select(x => {
                             var t = x.First();
                             return new
@@ -57,11 +69,7 @@ namespace SensorWeb.Controllers
                 }
             };
 
-            ViewBag.Title = title;
-            ViewBag.Description = description;
-            ViewBag.Chart = JsonConvert.SerializeObject(chart);
-
-            return View();
+            return Content(JsonConvert.SerializeObject(new { title, description, chart }), "application/json");
         }
     }
 }
