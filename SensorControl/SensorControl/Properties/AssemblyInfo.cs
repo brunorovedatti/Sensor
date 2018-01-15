@@ -10,8 +10,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Ing. Bruno Rovedatti")]
 [assembly: AssemblyProduct("Sensor Control")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2018")]
-[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCopyright("Copyright © Ing. Bruno Rovedatti 2018")]
+[assembly: AssemblyTrademark("Sensor Control")]
 [assembly: AssemblyCulture("")]
 
 // Si establece ComVisible en false, los tipos de este ensamblado no estarán visibles 

@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // La información general sobre un ensamblado se controla mediante el siguiente 
 // conjunto de atributos. Cambie los valores de estos atributos para modificar la información
 // asociada a un ensamblado.
-[assembly: AssemblyTitle("SensorWeb")]
+[assembly: AssemblyTitle("Sensor Web")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyProduct("SensorWeb")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2018")]
+[assembly: AssemblyProduct("Sensor Web")]
+[assembly: AssemblyCopyright("Copyright © Ing. Bruno Rovedatti2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
