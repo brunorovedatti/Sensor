@@ -103,7 +103,7 @@ namespace Controlador
                 ON(E.id_conexion = C.id_conexion)
             INNER JOIN (SELECT  MAX(L.id_lectura) AS id_lectura, L.id_variable FROM lecturas AS L GROUP BY L.id_variable) AS sql_ 
                 ON sql_.id_lectura = L.id_lectura 
-            WHERE L.analizada_lectura = 0
+            
             ";
 
             MySqlConnection MyConn = DbConexion.ObtenerConexion();
