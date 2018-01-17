@@ -1,0 +1,30 @@
+﻿@section Scripts {
+    @Scripts.Render("~/Scripts/chart.js")
+    <script>
+        $(function () {
+            var ctx = document.getElementById('myChart').getContext('2d');
+            var $title = $("#title");
+            var $description = $("#description");
+            var chart;
+
+            function reloadChart () {
+                $.post('@Url.Action("GetChartMinimaMaxima", new { id = "1" })', function (data) {
+                    if (chart) {
+                        chart.destroy();
+                    }
+                    $title.text(data.title);
+                    $description.text(data.description);
+                    chart = new Chart(ctx, data.chart);
+                });
+            }
+
+            reloadChart();
+            setInterval(reloadChart, 30000); // recarga cada 30 segundos
+        });
+    </script>
+}
+
+<h2 id="title"></h2>
+<h5 id="description"></h5>
+
+<canvas id="myChart"></canvas>

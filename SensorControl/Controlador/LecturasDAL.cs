@@ -261,19 +261,39 @@ namespace Controlador
         public static List<Modelo.Lectura> ValoresMinimos_y_Maximos(string pIdVariable, DateTime pFDesde, DateTime pFHasta)
         {
             List<Modelo.Lectura> _lista = new List<Modelo.Lectura>();
-            string strSQL = "";
-            strSQL = strSQL + "SELECT ";
-            strSQL = strSQL + "        L.fecha_lectura";
-            strSQL = strSQL + "      , MAX(L.valor_lectura) AS valor_maximo ";
-            strSQL = strSQL + "      , MIN(L.valor_lectura) AS valor_minimo ";
-            strSQL = strSQL + "FROM ";
-            strSQL = strSQL + "               sensor.lecturas AS L ";
-            strSQL = strSQL + "WHERE ";
-            strSQL = strSQL + "         L.id_variable = " + pIdVariable;
-            strSQL = strSQL + "     AND DATE_FORMAT(L.fecha_lectura, '%d/%m/%Y') BETWEEN '" + pFDesde + "' AND '" + pFHasta + "'";
-            MySqlConnection MyConn = new MySqlConnection();
-            MyConn = DbConexion.ObtenerConexion();
-            MySqlCommand _comando = new MySqlCommand(String.Format(strSQL), MyConn);
+            string strSQL = @"
+            SELECT 
+                    L.fecha_lectura
+                  , MAX(L.valor_lectura) AS valor_maximo       
+                  , MIN(L.valor_lectura) AS valor_minimo
+                  , L.id_variable 
+                  , V.nombre_variable 
+                  , V.unidad_variable 
+                  , V.id_equipo 
+                  , E.nombre_equipo 
+                  , E.id_ubicacion 
+                  , U.nombre_ubicacion 
+                  , E.id_conexion 
+                  , C.nombre_conexion 
+            FROM sensor.lecturas AS L 
+            INNER JOIN sensor.variables AS V 
+                ON(L.id_variable = V.id_variable) 
+            INNER JOIN sensor.equipos AS E 
+                ON(V.id_equipo = E.id_equipo) 
+            INNER JOIN sensor.ubicaciones AS U 
+                ON(E.id_ubicacion = U.id_ubicacion) 
+            INNER JOIN sensor.conexiones AS C 
+                ON(E.id_conexion = C.id_conexion)
+            WHERE V.id_variable = @id_variable
+                AND L.fecha_lectura BETWEEN @fecha_desde AND @fecha_hasta
+            GROUP BY DATE_FORMAT(L.fecha_lectura, '%d/%m/%Y')
+            ORDER BY L.fecha_lectura DESC
+            ";
+            MySqlConnection MyConn = DbConexion.ObtenerConexion();
+            MySqlCommand _comando = new MySqlCommand(strSQL, MyConn);
+            _comando.Parameters.AddWithValue("@id_variable", pIdVariable);
+            _comando.Parameters.AddWithValue("@fecha_desde", pFDesde);
+            _comando.Parameters.AddWithValue("@fecha_hasta", pFHasta);
 
             MySqlDataReader _reader = _comando.ExecuteReader();
             while (_reader.Read())
@@ -282,6 +302,15 @@ namespace Controlador
                 pLectura.Fecha_Lectura = _reader.GetDateTime(0);
                 pLectura.Valor_Maximo = _reader.GetString(1);
                 pLectura.Valor_Minimo = _reader.GetString(2);
+                pLectura.Id_Variable = _reader.GetString(3);
+                pLectura.Nombre_Variable = _reader.GetString(4);
+                pLectura.Unidad_Variable = _reader.GetString(5);
+                pLectura.Id_Equipo = _reader.GetString(6);
+                pLectura.Nombre_Equipo = _reader.GetString(7);
+                pLectura.Id_Ubicacion = _reader.GetInt32(8);
+                pLectura.Nombre_Ubicacion = _reader.GetString(9);
+                pLectura.Id_Conexion = _reader.GetInt32(10);
+                pLectura.Nombre_Conexion = _reader.GetString(11);
 
                 _lista.Add(pLectura);
             }
