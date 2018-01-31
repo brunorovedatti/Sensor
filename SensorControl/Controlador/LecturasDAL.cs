@@ -18,8 +18,8 @@ namespace Controlador
             strSQL = strSQL + "      , L.analizada_lectura ";
             strSQL = strSQL + "      , V.nombre_variable ";
             strSQL = strSQL + "      , V.unidad_variable ";
-            strSQL = strSQL + "      , V.alerta_variable ";
-            strSQL = strSQL + "      , V.operador_alerta_variable ";
+            strSQL = strSQL + "      , IFNULL(V.alerta_variable, '') AS alerta_variable ";
+            strSQL = strSQL + "      , IFNULL((V.operador_alerta_variable, '') AS operador_alerta_variable ";
             strSQL = strSQL + "      , V.id_equipo ";
             strSQL = strSQL + "      , E.nombre_equipo ";
             strSQL = strSQL + "      , E.id_ubicacion ";
@@ -82,8 +82,8 @@ namespace Controlador
                   , L.analizada_lectura 
                   , V.nombre_variable 
                   , V.unidad_variable 
-                  , V.alerta_variable 
-                  , V.operador_alerta_variable 
+                  , IFNULL(V.alerta_variable, '') AS alerta_variable 
+                  ,  IFNULL(V.operador_alerta_variable, '') AS operador_alerta_variable 
                   , V.id_equipo 
                   , E.nombre_equipo 
                   , E.id_ubicacion 
@@ -151,8 +151,8 @@ namespace Controlador
                   , L.analizada_lectura 
                   , V.nombre_variable 
                   , V.unidad_variable 
-                  , V.alerta_variable 
-                  , V.operador_alerta_variable 
+                  , IFNULL(V.alerta_variable, '') AS alerta_variable 
+                  ,  IFNULL(V.operador_alerta_variable, '') AS operador_alerta_variable 
                   , V.id_equipo 
                   , E.nombre_equipo 
                   , E.id_ubicacion 
@@ -215,7 +215,7 @@ namespace Controlador
             string strSQL = "";
             strSQL = strSQL + " UPDATE Lecturas SET ";
             strSQL = strSQL + "                Analizada_Lectura = 1";
-            strSQL = strSQL + " WHERE Id_Variable = " + pL.Id_Variable + " AND Id_Lectura <= " + pL.Id_Lectura;
+            strSQL = strSQL + " WHERE Id_Variable = '" + pL.Id_Variable + "' AND Id_Lectura <= " + pL.Id_Lectura;
             MySqlConnection MyConn = new MySqlConnection();
             MyConn = DbConexion.ObtenerConexion();
             MySqlCommand _comando = new MySqlCommand(String.Format(strSQL), MyConn);
@@ -237,7 +237,7 @@ namespace Controlador
             strSQL = strSQL + "FROM ";
             strSQL = strSQL + "               sensor.lecturas AS L ";
             strSQL = strSQL + "WHERE ";
-            strSQL = strSQL + "         L.id_variable = " + pIdVariable;
+            strSQL = strSQL + "         L.id_variable = '" + pIdVariable + "'";
             strSQL = strSQL + "     AND DATE_FORMAT(L.fecha_lectura, '%d/%m/%Y %H:%i:%S') BETWEEN '" + pFDesde + "' AND '" + pFHasta + "'";
             MySqlConnection MyConn = new MySqlConnection();
             MyConn = DbConexion.ObtenerConexion();
@@ -284,7 +284,7 @@ namespace Controlador
                 ON(E.id_ubicacion = U.id_ubicacion) 
             INNER JOIN sensor.conexiones AS C 
                 ON(E.id_conexion = C.id_conexion)
-            WHERE V.id_variable = @id_variable
+            WHERE V.id_variable = '@id_variable'
                 AND L.fecha_lectura BETWEEN @fecha_desde AND @fecha_hasta
             GROUP BY DATE_FORMAT(L.fecha_lectura, '%d/%m/%Y')
             ORDER BY L.fecha_lectura DESC

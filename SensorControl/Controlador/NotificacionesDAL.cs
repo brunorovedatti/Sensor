@@ -38,7 +38,7 @@ namespace Controlador
             strSQL = strSQL + "FROM ";
             strSQL = strSQL + "               Notificaciones AS N ";
             strSQL = strSQL + "WHERE ";
-            strSQL = strSQL + "         N.id_variable = " + pIdVariable;
+            strSQL = strSQL + "         N.id_variable = '" + pIdVariable + "'";
             strSQL = strSQL + "     AND DATE_FORMAT(N.fecha_notificacion, '%d/%m/%Y') BETWEEN '" + pFDesde + "' AND '" + pFHasta + "'";
             MySqlConnection MyConn = new MySqlConnection();
             MyConn = DbConexion.ObtenerConexion();

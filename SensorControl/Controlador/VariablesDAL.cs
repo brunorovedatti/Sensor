@@ -12,7 +12,7 @@ namespace Controlador
             string strSQL = "";
             strSQL = strSQL + " UPDATE Variables SET ";
             strSQL = strSQL + "                Alerta_Notificada = " + pV.Alerta_Notificada;
-            strSQL = strSQL + " WHERE Id_Variable = " + pV.Id_Variable;
+            strSQL = strSQL + " WHERE Id_Variable = '" + pV.Id_Variable + "'";
             MySqlConnection MyConn = new MySqlConnection();
             MyConn = DbConexion.ObtenerConexion();
             MySqlCommand _comando = new MySqlCommand(String.Format(strSQL), MyConn);

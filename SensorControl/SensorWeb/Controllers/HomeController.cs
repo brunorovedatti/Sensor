@@ -24,6 +24,11 @@ namespace SensorWeb.Controllers
             return View();
         }
 
+        public ActionResult GraficoNotificaciones()
+        {
+            return View();
+        }
+
         [HttpPost]
         public ContentResult GetChart(string id)
         {
