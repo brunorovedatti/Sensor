@@ -36,7 +36,7 @@ namespace Controlador
             string strSQL = "";
             strSQL = strSQL + " UPDATE Equipos SET ";
             strSQL = strSQL + "                Sin_Conexion_Equipo = " + pE.Sin_Conexion_Equipo;
-            strSQL = strSQL + " WHERE Id_Equipo = " + pE.Id_Equipo;
+            strSQL = strSQL + " WHERE Id_Equipo = '" + pE.Id_Equipo + "'";
             MySqlConnection MyConn = new MySqlConnection();
             MyConn = DbConexion.ObtenerConexion();
             MySqlCommand _comando = new MySqlCommand(String.Format(strSQL), MyConn);

@@ -13,7 +13,7 @@
             var chart;
 
             function reloadChart () {
-                $.post('@Url.Action("GetChart", new { id = "1" })', function (data) {
+                $.post('@Url.Action("GetChart", new { id = "sensor002" })', function (data) {
                     if (chart) {
                         chart.destroy();
                     }

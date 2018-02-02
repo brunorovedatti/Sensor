@@ -67,7 +67,7 @@ namespace SensorControl
             int resultado;
             Modelo.Notificacion pNotificacion = new Modelo.Notificacion();
             if (!pSin_Conexion_Equipo)
-            {
+            {//El quipo siempre esta conectado dentro del IF
                 //actualizo la variable en la BD para no seguir notificando
                 Modelo.Variable pVariable = new Modelo.Variable();
                 pVariable.Alerta_Notificada = pEstado;
@@ -78,9 +78,10 @@ namespace SensorControl
                 pNotificacion.Valor_Variable = oL.Alerta_Variable;
                 pNotificacion.Operador_Variable = oL.Operador_Alerta_Variable;
                 pNotificacion.Valor_Leido = oL.Valor_Lectura;
+                pNotificacion.Alerta_Notificada = pEstado.ToString();
             }
             if (pSin_Conexion_Equipo)//Actualizo el EQUIPO el campo SIN_CONEXION_EQUIPO
-            {
+            {//DESCONECTADO o RECONECTADO
                 //actualizo SIN_CONEXION_EQUIPO en la BD para no seguir notificando
                 Modelo.Equipo pEquipo = new Modelo.Equipo();
                 pEquipo.Sin_Conexion_Equipo = pEstado;
@@ -90,7 +91,11 @@ namespace SensorControl
                 pNotificacion.Nombre_Variable = "";
                 pNotificacion.Valor_Variable = "";
                 pNotificacion.Operador_Variable = "";
-                pNotificacion.Valor_Leido = "EQUIPO DESCONECTADO.";
+                pNotificacion.Alerta_Notificada = "";
+                if (pEstado)
+                    pNotificacion.Valor_Leido = "EQUIPO DESCONECTADO.";
+                else
+                    pNotificacion.Valor_Leido = "EQUIPO RECONECTADO.";
             }
             pNotificacion.Email_Notificacion = email;
             pNotificacion.Id_Conexion = oL.Id_Conexion.ToString();
@@ -99,7 +104,6 @@ namespace SensorControl
             pNotificacion.Nombre_Usuario = nombre_usuario;
             pNotificacion.Id_Equipo = oL.Id_Equipo;
             pNotificacion.Nombre_Equipo = oL.Nombre_Equipo;
-            pNotificacion.Alerta_Notificada = pEstado.ToString();
             resultado = Controlador.NotificacionesDAL.Agregar(pNotificacion);
         }
 
@@ -122,12 +126,16 @@ namespace SensorControl
                 string Id_Equipo_Vuelta_Anterior = "";
                 foreach (Modelo.Lectura oLectura in Controlador.LecturasDAL.RecuperarUltimasLecturas())
                 {
+                    decimal dcmValorLectura = Convert.ToDecimal(oLectura.Valor_Lectura.Replace(".", ","));
+                    decimal dcmAlertaVariable = 0;
+                    if (!System.String.IsNullOrEmpty(oLectura.Alerta_Variable))
+                        dcmAlertaVariable = Convert.ToDecimal(oLectura.Alerta_Variable.Replace(".", ","));
                     if (!oLectura.Analizada_Lectura)
                     {
                         switch (oLectura.Operador_Alerta_Variable)
                         {
                             case ">":
-                                if (Convert.ToDecimal(oLectura.Valor_Lectura.Replace(".", ",")) > Convert.ToDecimal(oLectura.Alerta_Variable.Replace(".", ",")))
+                                if (dcmValorLectura > dcmAlertaVariable)
                                 {
                                     if (!oLectura.Alerta_Notificada)
                                         EnvioEmailNotificacionAlerta(oLectura, "CONECTADO");
@@ -139,7 +147,7 @@ namespace SensorControl
                                 }
                                 break;
                             case ">=":
-                                if (Convert.ToDecimal(oLectura.Valor_Lectura.Replace(".", ",")) >= Convert.ToDecimal(oLectura.Alerta_Variable.Replace(".", ",")))
+                                if (dcmValorLectura >= dcmAlertaVariable)
                                 {
                                     if (!oLectura.Alerta_Notificada)
                                         EnvioEmailNotificacionAlerta(oLectura, "CONECTADO");
@@ -151,7 +159,7 @@ namespace SensorControl
                                 }
                                 break;
                             case "<":
-                                if (Convert.ToDecimal(oLectura.Valor_Lectura.Replace(".", ",")) < Convert.ToDecimal(oLectura.Alerta_Variable.Replace(".", ",")))
+                                if (dcmValorLectura < dcmAlertaVariable)
                                 {
                                     if (!oLectura.Alerta_Notificada)
                                         EnvioEmailNotificacionAlerta(oLectura, "CONECTADO");
@@ -163,7 +171,7 @@ namespace SensorControl
                                 }
                                 break;
                             case "<=":
-                                if (Convert.ToDecimal(oLectura.Valor_Lectura.Replace(".", ",")) <= Convert.ToDecimal(oLectura.Alerta_Variable.Replace(".", ",")))
+                                if (dcmValorLectura <= dcmAlertaVariable)
                                 {
                                     if (!oLectura.Alerta_Notificada)
                                         EnvioEmailNotificacionAlerta(oLectura, "CONECTADO");
@@ -191,23 +199,23 @@ namespace SensorControl
                     bool pEstado = false;
                     Modelo.Equipo pEquipo = new Modelo.Equipo();
                     pEquipo.Id_Equipo = oLectura.Id_Equipo;
-                    if (!oLectura.Sin_Conexion_Equipo) //Estaba funcionando el equipo y perdio la conexion
+                    TimeSpan Diferencia_Entre_Fechas = DateTime.Now.Subtract(Convert.ToDateTime(oLectura.Fecha_Lectura));
+                    if (Diferencia_Entre_Fechas.Days > 0)
+                        pEstado = true;
+                    else
                     {
-                        TimeSpan Diferencia_Entre_Fechas = DateTime.Now.Subtract(Convert.ToDateTime(oLectura.Fecha_Lectura));
-                        if (Diferencia_Entre_Fechas.Days > 0)
+                        if (Diferencia_Entre_Fechas.Hours > 0)
                             pEstado = true;
                         else
                         {
-                            if (Diferencia_Entre_Fechas.Hours > 0)
+                            if (Diferencia_Entre_Fechas.Minutes > 5)
                                 pEstado = true;
                             else
-                            {
-                                if (Diferencia_Entre_Fechas.Minutes > 5)
-                                    pEstado = true;
-                                else
-                                    pEstado = false;
-                            }
+                                pEstado = false;
                         }
+                    }
+                    if (!oLectura.Sin_Conexion_Equipo) //Estaba funcionando el equipo y perdio la conexion
+                    {
                         if (pEstado) //Si es TRUE significa que hay una falla y la debo enviar al usuario por email
                         {
                             if (Id_Equipo_Vuelta_Anterior != oLectura.Id_Equipo)
@@ -216,26 +224,15 @@ namespace SensorControl
                                 Result = Controlador.EquiposDAL.ModificarSinConexion(pEquipo);
                                 EnvioEmailNotificacionAlerta(oLectura, "DESCONECTADO");
                                 Id_Equipo_Vuelta_Anterior = oLectura.Id_Equipo;
+                                oLog.LogToFile("Si es TRUE significa que hay una falla y la debo enviar al usuario por email");
+                                oLog.LogToFile("EnvioEmailNotificacionAlerta(oLectura, DESCONECTADO);");
+                                oLog.LogToFile("pEstado: " + pEstado.ToString());
+                                oLog.LogToFile("Id_Equipo_Vuelta_Anterior: " + Id_Equipo_Vuelta_Anterior +" != "+ " oLectura.Id_Equipo: " + oLectura.Id_Equipo);
                             }
                         }
                     }
                     else //Estaba con falla el equipo, chequemos si ya se soluciono o persiste
                     {
-                        TimeSpan Diferencia_Entre_Fechas = DateTime.Now.Subtract(Convert.ToDateTime(oLectura.Fecha_Lectura));
-                        if (Diferencia_Entre_Fechas.Days > 0)
-                            pEstado = true;
-                        else
-                        {
-                            if (Diferencia_Entre_Fechas.Hours > 0)
-                                pEstado = true;
-                            else
-                            {
-                                if (Diferencia_Entre_Fechas.Minutes > 5)
-                                    pEstado = true;
-                                else
-                                    pEstado = false;
-                            }
-                        }
                         if (!pEstado) //Si es FALSE significa que volvio a funcionar
                         {
                             if (Id_Equipo_Vuelta_Anterior != oLectura.Id_Equipo) //Si son iguales significa que entro en la vuelta anterior.
@@ -244,6 +241,10 @@ namespace SensorControl
                                 Result = Controlador.EquiposDAL.ModificarSinConexion(pEquipo);
                                 EnvioEmailNotificacionAlerta(oLectura, "RECONECTADO");
                                 Id_Equipo_Vuelta_Anterior = oLectura.Id_Equipo;
+                                oLog.LogToFile("Si es FALSE significa que volvio a funcionar");
+                                oLog.LogToFile("EnvioEmailNotificacionAlerta(oLectura, RECONECTADO);");
+                                oLog.LogToFile("pEstado: " + pEstado.ToString());
+                                oLog.LogToFile("Id_Equipo_Vuelta_Anterior: " + Id_Equipo_Vuelta_Anterior + " != " + " oLectura.Id_Equipo: " + oLectura.Id_Equipo);
                             }
                         }
                     }

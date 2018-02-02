@@ -284,7 +284,7 @@ namespace Controlador
                 ON(E.id_ubicacion = U.id_ubicacion) 
             INNER JOIN sensor.conexiones AS C 
                 ON(E.id_conexion = C.id_conexion)
-            WHERE V.id_variable = '@id_variable'
+            WHERE V.id_variable = @id_variable
                 AND L.fecha_lectura BETWEEN @fecha_desde AND @fecha_hasta
             GROUP BY DATE_FORMAT(L.fecha_lectura, '%d/%m/%Y')
             ORDER BY L.fecha_lectura DESC
