@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Net;
 using System.Net.Mail;
-using System.Windows.Forms;
 
-namespace SensorControl
+namespace Utilitarios
 {
     public class Sender
     {
         LogFile oLog = new LogFile();
 
         string fic = "";
+
+        public bool redOSDE;
 
         public string mMailTo;
         public string mMailCc;
@@ -42,15 +43,38 @@ namespace SensorControl
         {
             try
             {
-                fic = Application.StartupPath.ToString() + "\\System.Sender.Config.dll";
-                string text = System.IO.File.ReadAllText(fic) + "\r\n"; //Esto lo hago porque puede que no deje un enter en el ultimo campo;
-                string strPort = getBetween(text, "[Port]=", "\r");
-                string strMailFrom = getBetween(text, "[MailFrom]=", "\r");
-                string strMailFromName = getBetween(text, "[MailFromName]=", "\r");
-                string strHost = getBetween(text, "[Host]=", "\r");
-                string strSubject = getBetween(text, "[Subject]=", "\r");
-                string strPass = getBetween(text, "[Pass]=", "\r");
-                string strFirma = getBetween(text, "[Firma]=", "\r");
+                //fic = Application.StartupPath.ToString() + "\\System.Sender.Config.dll";
+                //string text = System.IO.File.ReadAllText(fic) + "\r\n"; //Esto lo hago porque puede que no deje un enter en el ultimo campo;
+                //string strPort = getBetween(text, "[Port]=", "\r");
+                SenderConfig oS = new SenderConfig();
+                string strPort;
+                string strMailFrom;
+                string strMailFromName;
+                string strHost;
+                string strSubject;
+                string strPass;
+                string strFirma;
+
+                if (redOSDE)
+                {
+                    strPort = oS.PortOSDE;
+                    strMailFrom = oS.MailFromOSDE;
+                    strMailFromName = oS.MailFromNameOSDE;
+                    strHost = oS.HostOSDE;
+                    strSubject = oS.SubjectOSDE;
+                    strPass = oS.PassOSDE;
+                    strFirma = oS.FirmaOSDE;
+                }
+                else
+                {
+                    strPort = oS.Port;
+                    strMailFrom = oS.MailFrom;
+                    strMailFromName = oS.MailFromName;
+                    strHost = oS.Host;
+                    strSubject = oS.Subject;
+                    strPass = oS.Pass;
+                    strFirma = oS.Firma;
+                }
 
                 mPort = Convert.ToInt32(strPort);
                 mHost = strHost;
@@ -59,7 +83,7 @@ namespace SensorControl
                 if (strPass == "")
                     pass = "";
                 else
-                    pass = Utilidades.CryptorEngine.Decrypt(strPass, true);
+                    pass = CryptorEngine.Decrypt(strPass, true);
                 mSubject = strSubject;
 
                 MailAddress mailTo = new MailAddress(mMailTo);

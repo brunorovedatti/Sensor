@@ -4,7 +4,7 @@ using System.Text;
 using System.IO;
 using System.Windows.Forms;
 
-namespace SensorControl
+namespace Utilitarios
 {
     public class LogFile
     {

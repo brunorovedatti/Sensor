@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
+using Utilitarios;
+using System.Net.NetworkInformation;
 
 namespace SensorControl
 {
@@ -11,6 +13,8 @@ namespace SensorControl
 
         NotifyIcon NotifyIcon1 = new NotifyIcon();
 
+        public bool redOSDE = false;
+
         public frmAnalizadorVariables()
         {
             InitializeComponent();
@@ -18,12 +22,27 @@ namespace SensorControl
 
         private void frmAnalizadorVariables_Load(object sender, EventArgs e)
         {
+            try
+            {
+                //Primero voy a hacer PING contra el mail.osde.ar, si responde es porque estoy dentro de la RED de OSDE.
+                //Lo hago para definir que servidor de correo debo utilizar automaticamente
+                Utilitarios.SenderConfig pingMAIL = new Utilitarios.SenderConfig();
+                Ping pingSender = new Ping();
+                PingReply reply = pingSender.Send(pingMAIL.HostOSDE);
+                if (reply.Status == IPStatus.Success)
+                    redOSDE = true;
+            }
+            catch (Exception)
+            {
+                redOSDE = false;
+            }
             tmrActualizador.Enabled = true;
             NotifyIcon1.Icon = this.Icon;
             NotifyIcon1.Text = "Control Sensor" + " - v:" + Application.ProductVersion;
             NotifyIcon1.Visible = true;
             ChequearDatos();
             //tmrInicial.Enabled = false;
+            
         }
 
         private void EnvioEmailNotificacionAlerta(Modelo.Lectura oL, string pSin_Conexion_Equipo)
@@ -58,6 +77,7 @@ namespace SensorControl
                 e_mail = e_mail + "<p></p><p>          Muchas gracias.     </p>";
                 e_mail = e_mail + "<p></p><p> Saludos,     </p>";
                 oSender.mMsg = e_mail;
+                oSender.redOSDE = redOSDE;
                 oSender.Envio();
             }
         }
@@ -223,6 +243,7 @@ namespace SensorControl
                                 pEquipo.Sin_Conexion_Equipo = pEstado;
                                 Result = Controlador.EquiposDAL.ModificarSinConexion(pEquipo);
                                 EnvioEmailNotificacionAlerta(oLectura, "DESCONECTADO");
+                                oLog.LogToFile("Id_Equipo_Vuelta_Anterior: " + Id_Equipo_Vuelta_Anterior + " != " + " oLectura.Id_Equipo: " + oLectura.Id_Equipo);
                                 Id_Equipo_Vuelta_Anterior = oLectura.Id_Equipo;
                                 oLog.LogToFile("Si es TRUE significa que hay una falla y la debo enviar al usuario por email");
                                 oLog.LogToFile("EnvioEmailNotificacionAlerta(oLectura, DESCONECTADO);");
@@ -240,6 +261,7 @@ namespace SensorControl
                                 pEquipo.Sin_Conexion_Equipo = pEstado;
                                 Result = Controlador.EquiposDAL.ModificarSinConexion(pEquipo);
                                 EnvioEmailNotificacionAlerta(oLectura, "RECONECTADO");
+                                oLog.LogToFile("Id_Equipo_Vuelta_Anterior: " + Id_Equipo_Vuelta_Anterior + " != " + " oLectura.Id_Equipo: " + oLectura.Id_Equipo);
                                 Id_Equipo_Vuelta_Anterior = oLectura.Id_Equipo;
                                 oLog.LogToFile("Si es FALSE significa que volvio a funcionar");
                                 oLog.LogToFile("EnvioEmailNotificacionAlerta(oLectura, RECONECTADO);");

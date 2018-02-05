@@ -1,5 +1,6 @@
 ﻿using MySql.Data.MySqlClient;
 using System.Configuration;
+using Utilitarios;
 
 namespace Controlador
 {
@@ -21,11 +22,11 @@ namespace Controlador
         public static MySqlConnection ObtenerConexion()
         {
             string connectionString = "";
-            string strServer = ConfigurationManager.AppSettings.Get("Server");
-            string strDataSource = ConfigurationManager.AppSettings.Get("DataSource");
-            string strUser = ConfigurationManager.AppSettings.Get("User");
-            string strPassword = ConfigurationManager.AppSettings.Get("Password");
-            string strPort = ConfigurationManager.AppSettings.Get("Port");
+            string strServer = CryptorEngine.Decrypt(ConfigurationManager.AppSettings.Get("Server"), true);
+            string strDataSource = CryptorEngine.Decrypt(ConfigurationManager.AppSettings.Get("DataSource"), true);
+            string strUser = CryptorEngine.Decrypt(ConfigurationManager.AppSettings.Get("User"), true);
+            string strPassword = CryptorEngine.Decrypt(ConfigurationManager.AppSettings.Get("Password"), true);
+            string strPort = CryptorEngine.Decrypt(ConfigurationManager.AppSettings.Get("Port"), true);
 
             connectionString = "Server=" + strServer + "; Port=" + strPort + "; Database =" + strDataSource + "; Uid=" + strUser + "; pwd='" + strPassword + "';";
 

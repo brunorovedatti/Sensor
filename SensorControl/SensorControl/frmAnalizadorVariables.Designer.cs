@@ -46,7 +46,7 @@
             this.dgvGrilla.Location = new System.Drawing.Point(12, 12);
             this.dgvGrilla.Name = "dgvGrilla";
             this.dgvGrilla.ReadOnly = true;
-            this.dgvGrilla.Size = new System.Drawing.Size(92, 0);
+            this.dgvGrilla.Size = new System.Drawing.Size(96, 0);
             this.dgvGrilla.TabIndex = 0;
             // 
             // tmrActualizador
@@ -58,7 +58,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(116, 0);
+            this.ClientSize = new System.Drawing.Size(120, 0);
             this.Controls.Add(this.dgvGrilla);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;

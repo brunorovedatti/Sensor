@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="CryptorEngine.cs" />
     <Compile Include="LogToFile.cs" />
+    <Compile Include="Sender.Config.cs" />
     <Compile Include="Sender.cs" />
   </ItemGroup>
   <ItemGroup>
