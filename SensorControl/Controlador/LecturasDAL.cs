@@ -139,6 +139,48 @@ namespace Controlador
             return _lista;
         }
 
+        public static List<Modelo.Lectura> RecuperarUltimaNotificacionEnviada()
+        {
+            List<Modelo.Lectura> _lista = new List<Modelo.Lectura>();
+            string strSQL = @"
+            SELECT 
+                    L.id_lectura
+                  , L.fecha_lectura
+                  , E.id_equipo
+                  , E.Sin_Conexion_Equipo
+                  , E.Notificado_Estado
+                  , subV.alerta_variable
+                  , subV.operador_alerta_variable
+            FROM         sensor.lecturas AS L 
+                INNER JOIN 
+                        (SELECT  MAX(L.id_lectura) AS id_lectura, V.id_equipo FROM lecturas AS L INNER JOIN sensor.variables AS V ON L.id_variable = V.id_variable GROUP BY V.id_equipo) AS subSQL ON L.id_lectura = subSQL.id_lectura
+            INNER JOIN equipos AS E ON subSQL.id_equipo = E.id_equipo
+            INNER JOIN (SELECT id_variable, alerta_variable, operador_alerta_variable, id_equipo FROM sensor.variables AS V WHERE es_fecha = 1) AS subV ON subSQL.id_equipo = subV.id_equipo
+            ";
+
+            MySqlConnection MyConn = DbConexion.ObtenerConexion();
+            MySqlCommand _comando = new MySqlCommand(strSQL, MyConn);
+
+            MySqlDataReader _reader = _comando.ExecuteReader();
+            while (_reader.Read())
+            {
+                Modelo.Lectura pLectura = new Modelo.Lectura();
+                pLectura.Id_Lectura = _reader.GetInt32(0);
+                pLectura.Fecha_Lectura = _reader.GetDateTime(1);
+                pLectura.Id_Equipo = _reader.GetString(2);
+                pLectura.Sin_Conexion_Equipo = _reader.GetBoolean(3);
+                pLectura.Notificado_Estado = _reader.GetBoolean(4);
+                pLectura.Alerta_Variable = _reader.GetString(5);
+                pLectura.Operador_Alerta_Variable = _reader.GetString(6);
+
+                _lista.Add(pLectura);
+            }
+
+            MyConn.Close();
+
+            return _lista;
+        }
+
         public static List<Modelo.Lectura> RecuperarLecturaGrafico(string id)
         {
             List<Modelo.Lectura> _lista = new List<Modelo.Lectura>();
@@ -170,7 +212,7 @@ namespace Controlador
                 ON(E.id_ubicacion = U.id_ubicacion) 
             INNER JOIN sensor.conexiones AS C 
                 ON(E.id_conexion = C.id_conexion)
-            WHERE V.id_equipo = @idEquipo
+            WHERE V.id_equipo = @idEquipo AND V.graficable = 1
             ORDER BY L.fecha_lectura DESC
             LIMIT 100
             ";

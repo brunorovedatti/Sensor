@@ -45,11 +45,11 @@ namespace SensorControl
             
         }
 
-        private void EnvioEmailNotificacionAlerta(Modelo.Lectura oL, string pSin_Conexion_Equipo)
+        private void EnvioEmailNotificacionAlerta(Modelo.Lectura oL, string pSin_Conexion_Equipo, bool pNotificado_Estado)
         {
             foreach (Modelo.Usuario oUsuario in Controlador.UsuariosDAL.BuscarPorConexion(oL.Id_Conexion))
             {
-                oSender.mMailTo = oUsuario.Email_Usuario;
+                oSender.mMailTo = oUsuario.Email;
                 string e_mail = "";
                 string msjs_pedido = "";
                 e_mail = "<p> Hola,     </p><p></p>";
@@ -60,17 +60,17 @@ namespace SensorControl
                         msjs_pedido = msjs_pedido + " presento una alerta para la Variable: " + oL.Nombre_Variable + " al no cumplir con lo establecido.</p>";
                         msjs_pedido = msjs_pedido + "<p> Valor leido: " + oL.Valor_Lectura + " " + oL.Unidad_Variable + " cuando no deberia ser " + oL.Operador_Alerta_Variable + " " + oL.Alerta_Variable + oL.Unidad_Variable + "</p>";
 
-                        ActualizarAlertaNotificacion(oL, true, oUsuario.Email_Usuario, oUsuario.Id_Usuario.ToString(), oUsuario.Nombre_Usuario, false);
+                        ActualizarAlertaNotificacion(oL, true, oUsuario.Email, oUsuario.Login, oUsuario.Name, false, pNotificado_Estado);
                         break;
                     case "DESCONECTADO": //Este caso seria cuando el equipo esta desconectado
                         msjs_pedido = msjs_pedido + " no esta reportando eventos, favor de chequear su conexión.</p>";
 
-                        ActualizarAlertaNotificacion(oL, true, oUsuario.Email_Usuario, oUsuario.Id_Usuario.ToString(), oUsuario.Nombre_Usuario, true);
+                        ActualizarAlertaNotificacion(oL, true, oUsuario.Email, oUsuario.Login, oUsuario.Name, true, pNotificado_Estado);
                         break;
                     case "RECONECTADO": //Este caso seria cuando el equipo estaba desconectado y se volvio a conectar
                         msjs_pedido = msjs_pedido + " esta reportando eventos nuevamente.</p>";
 
-                        ActualizarAlertaNotificacion(oL, false, oUsuario.Email_Usuario, oUsuario.Id_Usuario.ToString(), oUsuario.Nombre_Usuario, true);
+                        ActualizarAlertaNotificacion(oL, false, oUsuario.Email, oUsuario.Login, oUsuario.Name, true, pNotificado_Estado);
                         break;
                 }
                 e_mail = e_mail + "</ul>" + msjs_pedido + "</ul>";
@@ -82,7 +82,7 @@ namespace SensorControl
             }
         }
         
-        private void ActualizarAlertaNotificacion(Modelo.Lectura oL, bool pEstado, string email, string id_usuario, string nombre_usuario, bool pSin_Conexion_Equipo)
+        private void ActualizarAlertaNotificacion(Modelo.Lectura oL, bool pEstado, string email, string id_usuario, string nombre_usuario, bool pSin_Conexion_Equipo, bool pNotificado_Estado)
         {
             int resultado;
             Modelo.Notificacion pNotificacion = new Modelo.Notificacion();
@@ -99,32 +99,53 @@ namespace SensorControl
                 pNotificacion.Operador_Variable = oL.Operador_Alerta_Variable;
                 pNotificacion.Valor_Leido = oL.Valor_Lectura;
                 pNotificacion.Alerta_Notificada = pEstado.ToString();
+
+                pNotificacion.Email_Notificacion = email;
+                pNotificacion.Id_Conexion = oL.Id_Conexion.ToString();
+                pNotificacion.Nombre_Conexion = oL.Nombre_Conexion;
+                pNotificacion.Id_Usuario = id_usuario;
+                pNotificacion.Nombre_Usuario = nombre_usuario;
+                pNotificacion.Id_Equipo = oL.Id_Equipo;
+                pNotificacion.Nombre_Equipo = oL.Nombre_Equipo;
+                resultado = Controlador.NotificacionesDAL.Agregar(pNotificacion);
             }
             if (pSin_Conexion_Equipo)//Actualizo el EQUIPO el campo SIN_CONEXION_EQUIPO
             {//DESCONECTADO o RECONECTADO
-                //actualizo SIN_CONEXION_EQUIPO en la BD para no seguir notificando
-                Modelo.Equipo pEquipo = new Modelo.Equipo();
-                pEquipo.Sin_Conexion_Equipo = pEstado;
-                pEquipo.Id_Equipo = oL.Id_Equipo;
-                resultado = Controlador.EquiposDAL.ModificarSinConexion(pEquipo);
-                pNotificacion.Id_Variable = "";
-                pNotificacion.Nombre_Variable = "";
-                pNotificacion.Valor_Variable = "";
-                pNotificacion.Operador_Variable = "";
-                pNotificacion.Alerta_Notificada = "";
-                if (pEstado)
-                    pNotificacion.Valor_Leido = "EQUIPO DESCONECTADO.";
-                else
-                    pNotificacion.Valor_Leido = "EQUIPO RECONECTADO.";
+                if (!pNotificado_Estado) //No esta notificada la aleerta, debo enviar un mail y guardar un registro
+                {
+                    //actualizo SIN_CONEXION_EQUIPO en la BD para no seguir notificando
+                    Modelo.Equipo pEquipo = new Modelo.Equipo();
+                    pEquipo.Sin_Conexion_Equipo = pEstado;
+                    pEquipo.Id_Equipo = oL.Id_Equipo;
+                    pEquipo.Notificado_Estado = false;
+                    resultado = Controlador.EquiposDAL.ModificarSinConexion(pEquipo);
+
+                    Modelo.Variable pVariable = new Modelo.Variable();
+                    pVariable.Alerta_Notificada = pEstado;
+                    pVariable.Id_Variable = oL.Id_Variable;
+                    resultado = Controlador.VariablesDAL.ModificarAlertaNotificada(pVariable);
+
+                    pNotificacion.Id_Variable = "";
+                    pNotificacion.Nombre_Variable = "";
+                    pNotificacion.Valor_Variable = "";
+                    pNotificacion.Operador_Variable = "";
+                    pNotificacion.Alerta_Notificada = "";
+                    if (pEstado)
+                        pNotificacion.Valor_Leido = "EQUIPO DESCONECTADO.";
+                    else
+                        pNotificacion.Valor_Leido = "EQUIPO RECONECTADO.";
+
+                    pNotificacion.Email_Notificacion = email;
+                    pNotificacion.Id_Conexion = oL.Id_Conexion.ToString();
+                    pNotificacion.Nombre_Conexion = oL.Nombre_Conexion;
+                    pNotificacion.Id_Usuario = id_usuario;
+                    pNotificacion.Nombre_Usuario = nombre_usuario;
+                    pNotificacion.Id_Equipo = oL.Id_Equipo;
+                    pNotificacion.Nombre_Equipo = oL.Nombre_Equipo;
+                    resultado = Controlador.NotificacionesDAL.Agregar(pNotificacion);
+                }
             }
-            pNotificacion.Email_Notificacion = email;
-            pNotificacion.Id_Conexion = oL.Id_Conexion.ToString();
-            pNotificacion.Nombre_Conexion = oL.Nombre_Conexion;
-            pNotificacion.Id_Usuario = id_usuario;
-            pNotificacion.Nombre_Usuario = nombre_usuario;
-            pNotificacion.Id_Equipo = oL.Id_Equipo;
-            pNotificacion.Nombre_Equipo = oL.Nombre_Equipo;
-            resultado = Controlador.NotificacionesDAL.Agregar(pNotificacion);
+
         }
 
         private void frmAnalizadorVariables_FormClosing(object sender, FormClosingEventArgs e)
@@ -143,11 +164,11 @@ namespace SensorControl
         {
             try
             {
-                string Id_Equipo_Vuelta_Anterior = "";
+                decimal dcmValorLectura;
+                decimal dcmAlertaVariable = 0;
                 foreach (Modelo.Lectura oLectura in Controlador.LecturasDAL.RecuperarUltimasLecturas())
                 {
-                    decimal dcmValorLectura = Convert.ToDecimal(oLectura.Valor_Lectura.Replace(".", ","));
-                    decimal dcmAlertaVariable = 0;
+                    dcmValorLectura = Convert.ToDecimal(oLectura.Valor_Lectura.Replace(".", ","));
                     if (!System.String.IsNullOrEmpty(oLectura.Alerta_Variable))
                         dcmAlertaVariable = Convert.ToDecimal(oLectura.Alerta_Variable.Replace(".", ","));
                     if (!oLectura.Analizada_Lectura)
@@ -158,48 +179,48 @@ namespace SensorControl
                                 if (dcmValorLectura > dcmAlertaVariable)
                                 {
                                     if (!oLectura.Alerta_Notificada)
-                                        EnvioEmailNotificacionAlerta(oLectura, "CONECTADO");
+                                        EnvioEmailNotificacionAlerta(oLectura, "CONECTADO", true);
                                 }
                                 else
                                 {
                                     if (oLectura.Alerta_Notificada)
-                                        ActualizarAlertaNotificacion(oLectura, false, "", "", "", false);
+                                        ActualizarAlertaNotificacion(oLectura, false, "", "", "", false, true);
                                 }
                                 break;
                             case ">=":
                                 if (dcmValorLectura >= dcmAlertaVariable)
                                 {
                                     if (!oLectura.Alerta_Notificada)
-                                        EnvioEmailNotificacionAlerta(oLectura, "CONECTADO");
+                                        EnvioEmailNotificacionAlerta(oLectura, "CONECTADO", true);
                                 }
                                 else
                                 {
                                     if (oLectura.Alerta_Notificada)
-                                        ActualizarAlertaNotificacion(oLectura, false, "", "", "", false);
+                                        ActualizarAlertaNotificacion(oLectura, false, "", "", "", false, true);
                                 }
                                 break;
                             case "<":
                                 if (dcmValorLectura < dcmAlertaVariable)
                                 {
                                     if (!oLectura.Alerta_Notificada)
-                                        EnvioEmailNotificacionAlerta(oLectura, "CONECTADO");
+                                        EnvioEmailNotificacionAlerta(oLectura, "CONECTADO", true);
                                 }
                                 else
                                 {
                                     if (oLectura.Alerta_Notificada)
-                                        ActualizarAlertaNotificacion(oLectura, false, "", "", "", false);
+                                        ActualizarAlertaNotificacion(oLectura, false, "", "", "", false, true);
                                 }
                                 break;
                             case "<=":
                                 if (dcmValorLectura <= dcmAlertaVariable)
                                 {
                                     if (!oLectura.Alerta_Notificada)
-                                        EnvioEmailNotificacionAlerta(oLectura, "CONECTADO");
+                                        EnvioEmailNotificacionAlerta(oLectura, "CONECTADO", true);
                                 }
                                 else
                                 {
                                     if (oLectura.Alerta_Notificada)
-                                        ActualizarAlertaNotificacion(oLectura, false, "", "", "", false);
+                                        ActualizarAlertaNotificacion(oLectura, false, "", "", "", false, true);
                                 }
                                 break;
                                 //default:
@@ -212,64 +233,70 @@ namespace SensorControl
                         pLectura.Id_Variable = oLectura.Id_Variable;
                         resultado = Controlador.LecturasDAL.AnalizadadLecturaTrue(pLectura);
                     }
-                    //Aca chequeo si paso mucho tiempo desde la ultima lectura, si eso sucede tengo que notificar, el equipo puede tener un problema.
-                    //Ojo que lo deberia hacer solo una vez, y no siempre.
-                    //Aparte tengo que avisar por el equipo y no por las variables que tiene asociada
-                    int Result;
-                    bool pEstado = false;
-                    Modelo.Equipo pEquipo = new Modelo.Equipo();
-                    pEquipo.Id_Equipo = oLectura.Id_Equipo;
-                    TimeSpan Diferencia_Entre_Fechas = DateTime.Now.Subtract(Convert.ToDateTime(oLectura.Fecha_Lectura));
-                    if (Diferencia_Entre_Fechas.Days > 0)
-                        pEstado = true;
-                    else
+                }
+                //Voy a chequear el estado de las variables SIN_CONEXION_EQUIPO y NOTIDICADO_ESTADO del EQUIPO
+                foreach (Modelo.Lectura oL in Controlador.LecturasDAL.RecuperarUltimaNotificacionEnviada())
+                {
+                    TimeSpan Diferencia_Entre_Fechas = DateTime.Now.Subtract(Convert.ToDateTime(oL.Fecha_Lectura));
+                    dcmValorLectura = Convert.ToDecimal(Diferencia_Entre_Fechas.Minutes) + Convert.ToDecimal(Diferencia_Entre_Fechas.Hours) * 60 + Convert.ToDecimal(Diferencia_Entre_Fechas.Days) * 24 * 60;
+                    if (!System.String.IsNullOrEmpty(oL.Alerta_Variable))
+                        dcmAlertaVariable = Convert.ToDecimal(oL.Alerta_Variable.Replace(".", ","));
+
+                    switch (oL.Operador_Alerta_Variable)
                     {
-                        if (Diferencia_Entre_Fechas.Hours > 0)
-                            pEstado = true;
-                        else
-                        {
-                            if (Diferencia_Entre_Fechas.Minutes > 5)
-                                pEstado = true;
+                        case ">":
+                            if (dcmValorLectura > dcmAlertaVariable)
+                            {
+                                if (!oL.Notificado_Estado)
+                                    EnvioEmailNotificacionAlerta(oL, "DESCONECTADO", oL.Notificado_Estado);
+                            }
                             else
-                                pEstado = false;
-                        }
-                    }
-                    if (!oLectura.Sin_Conexion_Equipo) //Estaba funcionando el equipo y perdio la conexion
-                    {
-                        if (pEstado) //Si es TRUE significa que hay una falla y la debo enviar al usuario por email
-                        {
-                            if (Id_Equipo_Vuelta_Anterior != oLectura.Id_Equipo)
                             {
-                                pEquipo.Sin_Conexion_Equipo = pEstado;
-                                Result = Controlador.EquiposDAL.ModificarSinConexion(pEquipo);
-                                EnvioEmailNotificacionAlerta(oLectura, "DESCONECTADO");
-                                oLog.LogToFile("Id_Equipo_Vuelta_Anterior: " + Id_Equipo_Vuelta_Anterior + " != " + " oLectura.Id_Equipo: " + oLectura.Id_Equipo);
-                                Id_Equipo_Vuelta_Anterior = oLectura.Id_Equipo;
-                                oLog.LogToFile("Si es TRUE significa que hay una falla y la debo enviar al usuario por email");
-                                oLog.LogToFile("EnvioEmailNotificacionAlerta(oLectura, DESCONECTADO);");
-                                oLog.LogToFile("pEstado: " + pEstado.ToString());
-                                oLog.LogToFile("Id_Equipo_Vuelta_Anterior: " + Id_Equipo_Vuelta_Anterior +" != "+ " oLectura.Id_Equipo: " + oLectura.Id_Equipo);
+                                if (!oL.Notificado_Estado)
+                                    EnvioEmailNotificacionAlerta(oL, "RECONECTADO", oL.Notificado_Estado); //ActualizarAlertaNotificacion(oLectura, false, "", "", "", false);
                             }
-                        }
-                    }
-                    else //Estaba con falla el equipo, chequemos si ya se soluciono o persiste
-                    {
-                        if (!pEstado) //Si es FALSE significa que volvio a funcionar
-                        {
-                            if (Id_Equipo_Vuelta_Anterior != oLectura.Id_Equipo) //Si son iguales significa que entro en la vuelta anterior.
+                            break;
+                        case ">=":
+                            if (dcmValorLectura >= dcmAlertaVariable)
                             {
-                                pEquipo.Sin_Conexion_Equipo = pEstado;
-                                Result = Controlador.EquiposDAL.ModificarSinConexion(pEquipo);
-                                EnvioEmailNotificacionAlerta(oLectura, "RECONECTADO");
-                                oLog.LogToFile("Id_Equipo_Vuelta_Anterior: " + Id_Equipo_Vuelta_Anterior + " != " + " oLectura.Id_Equipo: " + oLectura.Id_Equipo);
-                                Id_Equipo_Vuelta_Anterior = oLectura.Id_Equipo;
-                                oLog.LogToFile("Si es FALSE significa que volvio a funcionar");
-                                oLog.LogToFile("EnvioEmailNotificacionAlerta(oLectura, RECONECTADO);");
-                                oLog.LogToFile("pEstado: " + pEstado.ToString());
-                                oLog.LogToFile("Id_Equipo_Vuelta_Anterior: " + Id_Equipo_Vuelta_Anterior + " != " + " oLectura.Id_Equipo: " + oLectura.Id_Equipo);
+                                if (!oL.Notificado_Estado)
+                                    EnvioEmailNotificacionAlerta(oL, "DESCONECTADO", oL.Notificado_Estado);
                             }
-                        }
+                            else
+                            {
+                                if (!oL.Notificado_Estado)
+                                    EnvioEmailNotificacionAlerta(oL, "RECONECTADO", oL.Notificado_Estado); //ActualizarAlertaNotificacion(oLectura, false, "", "", "", false);
+                            }
+                            break;
+                        case "<":
+                            if (dcmValorLectura < dcmAlertaVariable)
+                            {
+                                if (!oL.Notificado_Estado)
+                                    EnvioEmailNotificacionAlerta(oL, "DESCONECTADO", oL.Notificado_Estado);
+                            }
+                            else
+                            {
+                                if (!oL.Notificado_Estado)
+                                    EnvioEmailNotificacionAlerta(oL, "RECONECTADO", oL.Notificado_Estado); //ActualizarAlertaNotificacion(oLectura, false, "", "", "", false);
+                            }
+                            break;
+                        case "<=":
+                            if (dcmValorLectura <= dcmAlertaVariable)
+                            {
+                                if (!oL.Notificado_Estado)
+                                    EnvioEmailNotificacionAlerta(oL, "DESCONECTADO", oL.Notificado_Estado);
+                            }
+                            else
+                            {
+                                if (!oL.Notificado_Estado)
+                                    EnvioEmailNotificacionAlerta(oL, "RECONECTADO", oL.Notificado_Estado); //ActualizarAlertaNotificacion(oLectura, false, "", "", "", false);
+                            }
+                            break;
+                            //default:
+                            //    Console.WriteLine("Default case");
+                            //    break;
                     }
+
                 }
             }
             catch (Exception ex)
@@ -277,6 +304,6 @@ namespace SensorControl
                 oLog.LogToFile(ex.ToString());
                 //MessageBox.Show(ex.ToString());
             }
-        }
+}
     }
 }

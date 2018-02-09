@@ -2,24 +2,25 @@
 {
     public class Usuario
     {
-        public int Id_Usuario { get; set; }
-        public string Nombre_Usuario { get; set; }
-        public string Contraseña { get; set; }
-        public bool Estado_Usuario { get; set; }
-        public string Nombre_Completo { get; set; }
-        public string Email_Usuario { get; set; }
-        public int Id_Conexion { get; set; }
+        public string Login { get; set; }
+        public string Pswd { get; set; }
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public string Active { get; set; }
+        public string Activation_Code { get; set; }
+        public string Priv_Admin { get; set; }
+
         public Usuario() { }
 
-        public Usuario(int pId_Usuario, string pNombre_Usuario, string pContraseña, bool pEstado_Usuario, string pNombre_Completo, string pEmail_Usuario, int pId_Conexion)
+        public Usuario(string pLogin, string pPswd, string pName, string pEmail, string pActive, string pActivation_Code, string pPriv_Admin)
         {
-            this.Id_Usuario = pId_Usuario;
-            this.Nombre_Usuario = pNombre_Usuario;
-            this.Contraseña = pContraseña;
-            this.Estado_Usuario = pEstado_Usuario;
-            this.Nombre_Completo = pNombre_Completo;
-            this.Email_Usuario = pEmail_Usuario;
-            this.Id_Conexion = pId_Conexion;
+            this.Login = pLogin;
+            this.Pswd = pPswd;
+            this.Name = pName;
+            this.Email = pEmail;
+            this.Active = pActive;
+            this.Activation_Code = pActivation_Code;
+            this.Priv_Admin = pPriv_Admin;
         }
     }
 }

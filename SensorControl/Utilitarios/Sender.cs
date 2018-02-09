@@ -8,7 +8,7 @@ namespace Utilitarios
     {
         LogFile oLog = new LogFile();
 
-        string fic = "";
+        //string fic = "";
 
         public bool redOSDE;
 

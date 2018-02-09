@@ -51,7 +51,7 @@
             // 
             // tmrActualizador
             // 
-            this.tmrActualizador.Interval = 3000;
+            this.tmrActualizador.Interval = 30000;
             this.tmrActualizador.Tick += new System.EventHandler(this.tmrActualizador_Tick);
             // 
             // frmAnalizadorVariables
