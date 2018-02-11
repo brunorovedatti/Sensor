@@ -23,7 +23,7 @@ namespace Controlador
             strSQL = strSQL + "    INNER JOIN sensor.sec_users AS U ";
             strSQL = strSQL + "                                    ON(UC.id_usuario = U.login) ";
             strSQL = strSQL + "WHERE   ( U.Active = 'Y' ";
-            strSQL = strSQL + "     AND UC.id_conexion = '" + pIdConexion + "') ";
+            strSQL = strSQL + "     AND UC.id_conexion = '" + pIdConexion + "' AND UC.notifico_por_email = 1) ";
             MySqlConnection MyConn = new MySqlConnection();
             MyConn = DbConexion.ObtenerConexion();
             MySqlCommand _comando = new MySqlCommand(String.Format(strSQL), MyConn);

@@ -103,6 +103,7 @@ namespace Controlador
                 ON(E.id_conexion = C.id_conexion)
             INNER JOIN (SELECT  MAX(L.id_lectura) AS id_lectura, L.id_variable FROM lecturas AS L GROUP BY L.id_variable) AS sql_ 
                 ON sql_.id_lectura = L.id_lectura 
+            WHERE V.estado_variable = 0
             ORDER BY V.Id_Equipo
             ";
 
@@ -147,15 +148,16 @@ namespace Controlador
                     L.id_lectura
                   , L.fecha_lectura
                   , E.id_equipo
+                  , E.id_conexion
                   , E.Sin_Conexion_Equipo
-                  , E.Notificado_Estado
                   , subV.alerta_variable
                   , subV.operador_alerta_variable
+                  , subV.id_variable
             FROM         sensor.lecturas AS L 
                 INNER JOIN 
                         (SELECT  MAX(L.id_lectura) AS id_lectura, V.id_equipo FROM lecturas AS L INNER JOIN sensor.variables AS V ON L.id_variable = V.id_variable GROUP BY V.id_equipo) AS subSQL ON L.id_lectura = subSQL.id_lectura
             INNER JOIN equipos AS E ON subSQL.id_equipo = E.id_equipo
-            INNER JOIN (SELECT id_variable, alerta_variable, operador_alerta_variable, id_equipo FROM sensor.variables AS V WHERE es_fecha = 1) AS subV ON subSQL.id_equipo = subV.id_equipo
+            INNER JOIN (SELECT id_variable, alerta_variable, operador_alerta_variable, id_equipo FROM sensor.variables AS V WHERE es_fecha = 1 AND estado_variable = 0) AS subV ON subSQL.id_equipo = subV.id_equipo
             ";
 
             MySqlConnection MyConn = DbConexion.ObtenerConexion();
@@ -168,10 +170,11 @@ namespace Controlador
                 pLectura.Id_Lectura = _reader.GetInt32(0);
                 pLectura.Fecha_Lectura = _reader.GetDateTime(1);
                 pLectura.Id_Equipo = _reader.GetString(2);
-                pLectura.Sin_Conexion_Equipo = _reader.GetBoolean(3);
-                pLectura.Notificado_Estado = _reader.GetBoolean(4);
+                pLectura.Id_Conexion = _reader.GetInt32(3);
+                pLectura.Sin_Conexion_Equipo = _reader.GetBoolean(4);
                 pLectura.Alerta_Variable = _reader.GetString(5);
                 pLectura.Operador_Alerta_Variable = _reader.GetString(6);
+                pLectura.Id_Variable = _reader.GetString(7);
 
                 _lista.Add(pLectura);
             }

@@ -24,11 +24,10 @@ namespace Modelo
         public string Valor_Maximo { get; set; }
         public string Valor_Minimo { get; set; }
         public bool Es_Fecha { get; set; }
-        public bool Notificado_Estado { get; set; }
 
         public Lectura() { }
 
-        public Lectura(int pId_Lectura, DateTime pFecha_Lectura, string pValor_Lectura, int pId_Ubicacion, string pNombre_Variable, string pUnidad_Variable, string pAlerta_Variable, string pOperador_Alerta_Variable, bool pAnalizada_Lectura, string pId_Equipo, string pNombre_Equipo, string pNombre_Ubicacion, int pId_Conexion, string pNombre_Conexion, bool pAlerta_Notificada, bool pSin_Conexion_Equipo, String pValor_Maximo, String pValor_Minimo, bool pEs_Fecha, bool pNotificado_Estado)
+        public Lectura(int pId_Lectura, DateTime pFecha_Lectura, string pValor_Lectura, int pId_Ubicacion, string pNombre_Variable, string pUnidad_Variable, string pAlerta_Variable, string pOperador_Alerta_Variable, bool pAnalizada_Lectura, string pId_Equipo, string pNombre_Equipo, string pNombre_Ubicacion, int pId_Conexion, string pNombre_Conexion, bool pAlerta_Notificada, bool pSin_Conexion_Equipo, String pValor_Maximo, String pValor_Minimo, bool pEs_Fecha)
         {
             this.Id_Lectura = pId_Lectura;
             this.Fecha_Lectura = pFecha_Lectura;
@@ -49,7 +48,6 @@ namespace Modelo
             this.Valor_Maximo = pValor_Maximo;
             this.Valor_Minimo = pValor_Minimo;
             this.Es_Fecha = pEs_Fecha;
-            this.Notificado_Estado = pNotificado_Estado;
         }
     }
 }
