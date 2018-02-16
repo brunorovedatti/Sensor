@@ -53,35 +53,36 @@ namespace SensorControl
                 oSender.mMailTo = oUsuario.Email;
                 string e_mail = "";
                 string msjs_pedido = "";
-                e_mail = "<p> Hola,     </p><p></p>";
-                msjs_pedido = msjs_pedido + "<p> El Equipo: " + oL.Nombre_Equipo + " con Ubicacion: " + oL.Nombre_Ubicacion + " para la Conexion: " + oL.Nombre_Conexion + "";
+                e_mail = "<p> Estimado,     </p><p></p>";
+                msjs_pedido = msjs_pedido + "<p> Informamos que el Equipo <strong>" + oL.Nombre_Equipo + "</strong> con Ubicación <strong>" + oL.Nombre_Ubicacion + "</strong> para la Conexión <strong>" + oL.Nombre_Conexion + "</strong>";
                 switch (pSin_Conexion_Equipo)
                 {
                     case "CONECTADO": //Este caso seria cuando hay una alerta, y el equipo esta conectado
                         switch (pTipo_Estado)
                         {
                             case "NORMAL":
-                                msjs_pedido = msjs_pedido + " se restablecio la Variable: " + oL.Nombre_Variable + " que no cumplia con lo establecido.</p>";
-                                msjs_pedido = msjs_pedido + "<p> Valor leido: " + oL.Valor_Lectura + " " + oL.Unidad_Variable + " cuando no deberia ser " + oL.Operador_Alerta_Variable + " " + oL.Alerta_Variable + oL.Unidad_Variable + "</p>";
-
+                                msjs_pedido = msjs_pedido + " desactivo una alerta para la variable <strong>" + oL.Nombre_Variable + "</strong>.</p>";
+                                msjs_pedido = msjs_pedido + "<p> Valor según medición: <strong>" + oL.Valor_Lectura + " " + oL.Unidad_Variable + "</strong>.</p>";
+                                msjs_pedido = msjs_pedido + "<p> Valor sugerido: <strong>" + oL.Operador_Alerta_Variable + " " + oL.Alerta_Variable + oL.Unidad_Variable + "</strong>.</p>";
                                 ActualizarAlertaNotificacion(oL, oUsuario, pSin_Conexion_Equipo, pTipo_Estado);
                                 break;
 
                             case "FALLA":
-                                msjs_pedido = msjs_pedido + " presento una alerta para la Variable: " + oL.Nombre_Variable + " al no cumplir con lo establecido.</p>";
-                                msjs_pedido = msjs_pedido + "<p> Valor leido: " + oL.Valor_Lectura + " " + oL.Unidad_Variable + " cuando no deberia ser " + oL.Operador_Alerta_Variable + " " + oL.Alerta_Variable + oL.Unidad_Variable + "</p>";
+                                msjs_pedido = msjs_pedido + " presento una alerta para la variable <strong>" + oL.Nombre_Variable + "</strong> al no cumplir con lo establecido.</p>";
+                                msjs_pedido = msjs_pedido + "<p> Valor según medición: <strong>" + oL.Valor_Lectura + " " + oL.Unidad_Variable + "</strong>.</p>";
+                                msjs_pedido = msjs_pedido + "<p> Valor sugerido: <strong>" + oL.Operador_Alerta_Variable + " " + oL.Alerta_Variable + oL.Unidad_Variable + "</strong>.</p>";
 
                                 ActualizarAlertaNotificacion(oL, oUsuario, pSin_Conexion_Equipo, pTipo_Estado);
                                 break;
                         }
                         break;
                     case "DESCONECTADO": //Este caso seria cuando el equipo esta desconectado
-                        msjs_pedido = msjs_pedido + " no esta reportando eventos, favor de chequear su conexión.</p>";
+                        msjs_pedido = msjs_pedido + " no esté conectado en este momento, por lo tanto no reporta eventos. Favor de corroborar que su equipo esté conectado correctamente.</p>";
 
                         ActualizarAlertaNotificacion(oL, oUsuario, pSin_Conexion_Equipo, pTipo_Estado);
                         break;
                     case "RECONECTADO": //Este caso seria cuando el equipo estaba desconectado y se volvio a conectar
-                        msjs_pedido = msjs_pedido + " esta reportando eventos nuevamente.</p>";
+                        msjs_pedido = msjs_pedido + " está nuevamente conectado.</p>";
 
                         ActualizarAlertaNotificacion(oL, oUsuario, pSin_Conexion_Equipo, pTipo_Estado);
                         break;
@@ -171,72 +172,6 @@ namespace SensorControl
             pNotificacion.Nombre_Equipo = oL.Nombre_Equipo;
             resultado = Controlador.NotificacionesDAL.Agregar(pNotificacion);
         }
-
-        //private void ActualizarAlertaNotificacionOLD(Modelo.Lectura oL, Modelo.Usuario oU, string pSin_Conexion_Equipo, string pTipo_Estado)
-        //{
-        //    int resultado;
-        //    Modelo.Notificacion pNotificacion = new Modelo.Notificacion();
-        //    if (!pSin_Conexion_Equipo)
-        //    {//El quipo siempre esta conectado dentro del IF
-        //        //actualizo la variable en la BD para no seguir notificando
-        //        Modelo.Variable pVariable = new Modelo.Variable();
-        //        pVariable.Alerta_Notificada = pEstado;
-        //        pVariable.Id_Variable = oL.Id_Variable;
-        //        resultado = Controlador.VariablesDAL.ModificarAlertaNotificada(pVariable);
-        //        pNotificacion.Id_Variable = oL.Id_Variable;
-        //        pNotificacion.Nombre_Variable = oL.Nombre_Variable;
-        //        pNotificacion.Valor_Variable = oL.Alerta_Variable;
-        //        pNotificacion.Operador_Variable = oL.Operador_Alerta_Variable;
-        //        pNotificacion.Valor_Leido = oL.Valor_Lectura;
-        //        pNotificacion.Alerta_Notificada = pEstado.ToString();
-
-        //        pNotificacion.Email_Notificacion = oU.Email;
-        //        pNotificacion.Id_Conexion = oL.Id_Conexion.ToString();
-        //        pNotificacion.Nombre_Conexion = oL.Nombre_Conexion;
-        //        pNotificacion.Id_Usuario = oU.Login;
-        //        pNotificacion.Nombre_Usuario = oU.Name;
-        //        pNotificacion.Id_Equipo = oL.Id_Equipo;
-        //        pNotificacion.Nombre_Equipo = oL.Nombre_Equipo;
-        //        resultado = Controlador.NotificacionesDAL.Agregar(pNotificacion);
-        //    }
-        //    if (pSin_Conexion_Equipo)//Actualizo el EQUIPO el campo SIN_CONEXION_EQUIPO
-        //    {//DESCONECTADO o RECONECTADO
-        //        if (!pNotificado_Estado) //No esta notificada la aleerta, debo enviar un mail y guardar un registro
-        //        {
-        //            //actualizo SIN_CONEXION_EQUIPO en la BD para no seguir notificando
-        //            Modelo.Equipo pEquipo = new Modelo.Equipo();
-        //            pEquipo.Sin_Conexion_Equipo = pEstado;
-        //            pEquipo.Id_Equipo = oL.Id_Equipo;
-        //            pEquipo.Notificado_Estado = false;
-        //            resultado = Controlador.EquiposDAL.ModificarSinConexion(pEquipo);
-
-        //            Modelo.Variable pVariable = new Modelo.Variable();
-        //            pVariable.Alerta_Notificada = pEstado;
-        //            pVariable.Id_Variable = oL.Id_Variable;
-        //            resultado = Controlador.VariablesDAL.ModificarAlertaNotificada(pVariable);
-
-        //            pNotificacion.Id_Variable = "";
-        //            pNotificacion.Nombre_Variable = "";
-        //            pNotificacion.Valor_Variable = "";
-        //            pNotificacion.Operador_Variable = "";
-        //            pNotificacion.Alerta_Notificada = "";
-        //            if (pEstado)
-        //                pNotificacion.Valor_Leido = "EQUIPO DESCONECTADO.";
-        //            else
-        //                pNotificacion.Valor_Leido = "EQUIPO RECONECTADO.";
-
-        //            pNotificacion.Email_Notificacion = oU.Email;
-        //            pNotificacion.Id_Conexion = oL.Id_Conexion.ToString();
-        //            pNotificacion.Nombre_Conexion = oL.Nombre_Conexion;
-        //            pNotificacion.Id_Usuario = oU.Login;
-        //            pNotificacion.Nombre_Usuario = oU.Name;
-        //            pNotificacion.Id_Equipo = oL.Id_Equipo;
-        //            pNotificacion.Nombre_Equipo = oL.Nombre_Equipo;
-        //            resultado = Controlador.NotificacionesDAL.Agregar(pNotificacion);
-        //        }
-        //    }
-
-        //}
 
         private void frmAnalizadorVariables_FormClosing(object sender, FormClosingEventArgs e)
         {

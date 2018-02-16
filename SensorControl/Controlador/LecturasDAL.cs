@@ -153,10 +153,15 @@ namespace Controlador
                   , subV.alerta_variable
                   , subV.operador_alerta_variable
                   , subV.id_variable
+                  , E.nombre_equipo 
+                  , U.nombre_ubicacion
+                  , C.nombre_conexion
             FROM         sensor.lecturas AS L 
                 INNER JOIN 
                         (SELECT  MAX(L.id_lectura) AS id_lectura, V.id_equipo FROM lecturas AS L INNER JOIN sensor.variables AS V ON L.id_variable = V.id_variable GROUP BY V.id_equipo) AS subSQL ON L.id_lectura = subSQL.id_lectura
             INNER JOIN equipos AS E ON subSQL.id_equipo = E.id_equipo
+            INNER JOIN ubicaciones AS U ON E.id_ubicacion = U.id_ubicacion
+            INNER JOIN conexiones AS C ON E.id_conexion = C.id_conexion
             INNER JOIN (SELECT id_variable, alerta_variable, operador_alerta_variable, id_equipo FROM sensor.variables AS V WHERE es_fecha = 1 AND estado_variable = 0) AS subV ON subSQL.id_equipo = subV.id_equipo
             ";
 
@@ -175,6 +180,9 @@ namespace Controlador
                 pLectura.Alerta_Variable = _reader.GetString(5);
                 pLectura.Operador_Alerta_Variable = _reader.GetString(6);
                 pLectura.Id_Variable = _reader.GetString(7);
+                pLectura.Nombre_Equipo = _reader.GetString(8);
+                pLectura.Nombre_Ubicacion = _reader.GetString(9);
+                pLectura.Nombre_Variable = _reader.GetString(10);
 
                 _lista.Add(pLectura);
             }
