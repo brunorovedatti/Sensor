@@ -2,6 +2,8 @@
 using System.Windows.Forms;
 using Utilitarios;
 using System.Net.NetworkInformation;
+using System.IO;
+using System.Net;
 
 namespace SensorControl
 {
@@ -11,9 +13,48 @@ namespace SensorControl
 
         LogFile oLog = new LogFile();
 
+        private static WebRequest request;
+        private static WebResponse response;
+        private static StreamReader reader;
+
         NotifyIcon NotifyIcon1 = new NotifyIcon();
 
         public bool redOSDE = false;
+
+        public decimal dcmValorLectura = 0;
+
+        private string leerPaginaWeb(string laUrl)
+        {
+            try
+            {
+                request = WebRequest.Create(laUrl);// Cear la solicitud de la URL.
+
+                response = request.GetResponse();// Obtener la respuesta.
+
+                reader = new StreamReader(response.GetResponseStream());// Abrir el stream de la respuesta recibida.
+
+                string res = reader.ReadToEnd();// Leer el contenido.
+
+                reader.Close();
+                response.Close();
+
+                return res;
+            }
+            catch (TimeoutException ex)
+            {
+                //oSender.mMsg = oSender.mMsg + "<p> Error en URL: " + laUrl + "</p>";
+                oLog.LogToFile(laUrl);
+                oLog.LogToFile(ex.ToString());
+                return "ERROR";
+            }
+            catch (Exception ex)
+            {
+                //oSender.mMsg = oSender.mMsg + "<p> Error en URL: " + laUrl + "</p>";
+                oLog.LogToFile(laUrl);
+                oLog.LogToFile(ex.ToString());
+                return "ERROR";
+            }
+        }
 
         public frmAnalizadorVariables()
         {
@@ -137,7 +178,7 @@ namespace SensorControl
                     pVariable.Id_Variable = oL.Id_Variable;
                     resultado = Controlador.VariablesDAL.ModificarAlertaNotificada(pVariable);
 
-                    pNotificacion.Valor_Leido = "DESCONECTADO.";
+                    pNotificacion.Valor_Leido = dcmValorLectura.ToString();
                     pNotificacion.Alerta_Notificada = true.ToString();
 
                     pEquipo.Sin_Conexion_Equipo = true;
@@ -150,8 +191,8 @@ namespace SensorControl
                     pVariable.Id_Variable = oL.Id_Variable;
                     resultado = Controlador.VariablesDAL.ModificarAlertaNotificada(pVariable);
 
-                    pNotificacion.Valor_Leido = "RECONECTADO.";
-                    pNotificacion.Alerta_Notificada = true.ToString();
+                    pNotificacion.Valor_Leido = dcmValorLectura.ToString();
+                    pNotificacion.Alerta_Notificada = false.ToString();
 
                     pEquipo.Sin_Conexion_Equipo = false;
                     pEquipo.Id_Equipo = oL.Id_Equipo;
@@ -184,6 +225,7 @@ namespace SensorControl
             this.Close();
             ChequearDatos();
             ChequearDesconexion();
+            ChequearIps();
         }
 
         private void ChequearDatos()
@@ -272,7 +314,6 @@ namespace SensorControl
         {
             try
             {
-                decimal dcmValorLectura;
                 decimal dcmAlertaVariable = 0;
                 foreach (Modelo.Lectura oL in Controlador.LecturasDAL.RecuperarUltimaNotificacionEnviada())
                 {
@@ -345,5 +386,72 @@ namespace SensorControl
             }
         }
 
+        private void ChequearIps()
+        {
+            try
+            {
+                string contenido_url = "";
+                foreach (Modelo.Ip oIp in Controlador.IpsDAL.RecuperarTodasLasIps())
+                {
+                    if (oIp.IP == "") //significa que estea IP no esta dada de alta en la tabla IP, solo esta en la tabla LOG.
+                    {
+                        //Primero consulto los datos en la pagina de internet y luego los guardo en la tabla IP
+                        contenido_url = leerPaginaWeb("https://ip-address.us/lookup/" + oIp.Ip_User);
+
+                        if (contenido_url != "ERROR")
+                        {
+                            string[] ini;
+                            string[] fin = new string[] { "</dd>" }; 
+                            string[] primer_corte;
+                            string[] segundo_corte;
+                            Modelo.Ip pIp = new Modelo.Ip();
+                            pIp.IP = oIp.Ip_User;
+                            ini = new string[] { "ISP</dt> <dd>" };
+                            primer_corte = contenido_url.Split(ini, StringSplitOptions.None);
+                            segundo_corte = primer_corte[Convert.ToInt32(1)].Split(fin, StringSplitOptions.None);
+                            pIp.Isp = segundo_corte[0].ToString();
+                            
+                            ini = new string[] { "Country Name</dt> <dd>" };
+                            primer_corte = contenido_url.Split(ini, StringSplitOptions.None);
+                            segundo_corte = primer_corte[Convert.ToInt32(1)].Split(fin, StringSplitOptions.None);
+                            pIp.Country = segundo_corte[0].ToString();
+
+                            ini = new string[] { "Latitude</dt> <dd>" };
+                            primer_corte = contenido_url.Split(ini, StringSplitOptions.None);
+                            segundo_corte = primer_corte[Convert.ToInt32(1)].Split(fin, StringSplitOptions.None);
+                            pIp.Latitud = segundo_corte[0].ToString();
+
+                            ini = new string[] { "Longitude</dt> <dd>" };
+                            primer_corte = contenido_url.Split(ini, StringSplitOptions.None);
+                            segundo_corte = primer_corte[Convert.ToInt32(1)].Split(fin, StringSplitOptions.None);
+                            pIp.Longitud = segundo_corte[0].ToString();
+
+                            ini = new string[] { "Zone Name</dt> <dd>" };
+                            primer_corte = contenido_url.Split(ini, StringSplitOptions.None);
+                            segundo_corte = primer_corte[Convert.ToInt32(1)].Split(fin, StringSplitOptions.None);
+                            pIp.Zona = segundo_corte[0].ToString();
+
+                            ini = new string[] { "City Name</dt> <dd>" };
+                            primer_corte = contenido_url.Split(ini, StringSplitOptions.None);
+                            segundo_corte = primer_corte[Convert.ToInt32(1)].Split(fin, StringSplitOptions.None);
+                            pIp.Ciudad = segundo_corte[0].ToString();
+
+                            ini = new string[] { "Continent Name</dt> <dd>" };
+                            primer_corte = contenido_url.Split(ini, StringSplitOptions.None);
+                            segundo_corte = primer_corte[Convert.ToInt32(1)].Split(fin, StringSplitOptions.None);
+                            pIp.Continente = segundo_corte[0].ToString();
+
+                            int resultado;
+                            resultado = Controlador.IpsDAL.Agregar(pIp);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                oLog.LogToFile(ex.ToString());
+                //MessageBox.Show(ex.ToString());
+            }
+        }
     }
 }

@@ -46,6 +46,7 @@
     <Compile Include="ConexionesDAL.cs" />
     <Compile Include="DbConexion.cs" />
     <Compile Include="EquiposDAL.cs" />
+    <Compile Include="IpsDAL.cs" />
     <Compile Include="LecturasDAL.cs" />
     <Compile Include="NotificacionesDAL.cs" />
     <Compile Include="UbicacionesDAL.cs" />

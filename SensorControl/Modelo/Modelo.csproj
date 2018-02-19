@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="Conexion.cs" />
     <Compile Include="Equipo.cs" />
+    <Compile Include="ip.cs" />
     <Compile Include="Lectura.cs" />
     <Compile Include="Notificacion.cs" />
     <Compile Include="Ubicacion.cs" />
