@@ -51,7 +51,7 @@ namespace Utilitarios
                 string strMailFrom;
                 string strMailFromName;
                 string strHost;
-                string strSubject;
+                //string strSubject;
                 string strPass;
                 string strFirma;
 
@@ -61,7 +61,7 @@ namespace Utilitarios
                     strMailFrom = oS.MailFromOSDE;
                     strMailFromName = oS.MailFromNameOSDE;
                     strHost = oS.HostOSDE;
-                    strSubject = oS.SubjectOSDE;
+                    //strSubject = oS.SubjectOSDE;
                     strPass = oS.PassOSDE;
                     strFirma = oS.FirmaOSDE;
                 }
@@ -71,7 +71,7 @@ namespace Utilitarios
                     strMailFrom = oS.MailFrom;
                     strMailFromName = oS.MailFromName;
                     strHost = oS.Host;
-                    strSubject = oS.Subject;
+                    //strSubject = oS.Subject;
                     strPass = oS.Pass;
                     strFirma = oS.Firma;
                 }
@@ -84,7 +84,7 @@ namespace Utilitarios
                     pass = "";
                 else
                     pass = CryptorEngine.Decrypt(strPass, true);
-                mSubject = strSubject;
+                //mSubject = strSubject;
 
                 MailAddress mailTo = new MailAddress(mMailTo);
                 MailMessage message = new MailMessage();

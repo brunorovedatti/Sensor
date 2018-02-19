@@ -102,6 +102,7 @@ namespace SensorControl
                         switch (pTipo_Estado)
                         {
                             case "NORMAL":
+                                oSender.mSubject = "Restablecida Medicion Sensor Control";
                                 msjs_pedido = msjs_pedido + " desactivo una alerta para la variable <strong>" + oL.Nombre_Variable + "</strong>.</p>";
                                 msjs_pedido = msjs_pedido + "<p> Valor según medición: <strong>" + oL.Valor_Lectura + " " + oL.Unidad_Variable + "</strong>.</p>";
                                 msjs_pedido = msjs_pedido + "<p> Valor sugerido: <strong>" + oL.Operador_Alerta_Variable + " " + oL.Alerta_Variable + oL.Unidad_Variable + "</strong>.</p>";
@@ -109,6 +110,7 @@ namespace SensorControl
                                 break;
 
                             case "FALLA":
+                                oSender.mSubject = "Alerta Medicion Sensor Control";
                                 msjs_pedido = msjs_pedido + " presento una alerta para la variable <strong>" + oL.Nombre_Variable + "</strong> al no cumplir con lo establecido.</p>";
                                 msjs_pedido = msjs_pedido + "<p> Valor según medición: <strong>" + oL.Valor_Lectura + " " + oL.Unidad_Variable + "</strong>.</p>";
                                 msjs_pedido = msjs_pedido + "<p> Valor sugerido: <strong>" + oL.Operador_Alerta_Variable + " " + oL.Alerta_Variable + oL.Unidad_Variable + "</strong>.</p>";
@@ -118,11 +120,13 @@ namespace SensorControl
                         }
                         break;
                     case "DESCONECTADO": //Este caso seria cuando el equipo esta desconectado
+                        oSender.mSubject = "Desconexion Sensor Control";
                         msjs_pedido = msjs_pedido + " no esté conectado en este momento, por lo tanto no reporta eventos. Favor de corroborar que su equipo esté conectado correctamente.</p>";
 
                         ActualizarAlertaNotificacion(oL, oUsuario, pSin_Conexion_Equipo, pTipo_Estado);
                         break;
                     case "RECONECTADO": //Este caso seria cuando el equipo estaba desconectado y se volvio a conectar
+                        oSender.mSubject = "Reconectado Sensor Control";
                         msjs_pedido = msjs_pedido + " está nuevamente conectado.</p>";
 
                         ActualizarAlertaNotificacion(oL, oUsuario, pSin_Conexion_Equipo, pTipo_Estado);
@@ -443,6 +447,35 @@ namespace SensorControl
 
                             int resultado;
                             resultado = Controlador.IpsDAL.Agregar(pIp);
+
+                            //Si es Country != "Argentina" tengo que mandar email notificando un posible ataque
+                            if (pIp.Country != "Argentina")
+                            {
+                                //Notifico a todos los que tienen priviligio de administrador en la tabla USUARIOS (Y)
+                                foreach (Modelo.Usuario oUsuario in Controlador.UsuariosDAL.BuscarPrivAdmin())
+                                {
+                                    oSender.mMailTo = oUsuario.Email;
+                                    oSender.mSubject = "Alerta Ataque Sensor Control";
+                                    string e_mail = "";
+                                    string msjs_pedido = "";
+                                    e_mail = "<p> Estimado,     </p><p></p>";
+                                    msjs_pedido = msjs_pedido + "<p> Informamos que detectamos conexiones anormales.</p>";
+                                    msjs_pedido = msjs_pedido + "<li> IP: <strong>" + pIp.IP + "</strong>     </li>";
+                                    msjs_pedido = msjs_pedido + "<li> ISP: <strong>" + pIp.Isp + "</strong>     </li>";
+                                    msjs_pedido = msjs_pedido + "<li> Continente: <strong>" + pIp.Continente + "</strong>     </li>";
+                                    msjs_pedido = msjs_pedido + "<li> País: <strong>" + pIp.Country + "</strong>     </li>";
+                                    msjs_pedido = msjs_pedido + "<li> Ciudad: <strong>" + pIp.Ciudad + "</strong>     </li>";
+                                    msjs_pedido = msjs_pedido + "<li> Zona: <strong>" + pIp.Zona + "</strong>     </li>";
+                                    msjs_pedido = msjs_pedido + "<li> Latitud: <strong>" + pIp.Latitud + "</strong>     </li>";
+                                    msjs_pedido = msjs_pedido + "<li> Longitud: <strong>" + pIp.Longitud + "</strong>     </li>";
+                                    e_mail = e_mail + "</ul>" + msjs_pedido + "</ul>";
+                                    e_mail = e_mail + "<p></p><p>          Muchas gracias.     </p>";
+                                    e_mail = e_mail + "<p></p><p> Saludos,     </p>";
+                                    oSender.mMsg = e_mail;
+                                    oSender.redOSDE = redOSDE;
+                                    oSender.Envio();
+                                }
+                            }
                         }
                     }
                 }
